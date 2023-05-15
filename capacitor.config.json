@@ -1,0 +1,8 @@
+{
+  "appId": "eu.johnmuler.mypetspro_jm",
+  "appName": "eu.johnmuler.mypetspro_jm",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

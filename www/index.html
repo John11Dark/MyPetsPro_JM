@@ -1,50 +1,158 @@
 <!DOCTYPE html>
-<!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
+<html lang="en">
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
-<html>
     <head>
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
         <meta charset="utf-8">
-        <!--
-        Customize this policy to fit your own app's needs. For more guidance, please refer to the docs:
-            https://cordova.apache.org/docs/en/latest/
-        Some notes:
-            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-                * Enable inline JS: add 'unsafe-inline' to default-src
-        -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
         <meta name="color-scheme" content="light dark">
-        <link rel="stylesheet" href="css/index.css">
-        <title>Hello World</title>
+        <title id="pageTitle">My pets Pro</title>
+
+        <!-- ionic CDNs -->
+        <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+        <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+        <script src="cordova.js" defer></script>
+
+        <script src="JS/app.js" type="module"></script>
+        <link rel="stylesheet" href="Styles/style.css">
+
     </head>
+
     <body>
-        <div class="app">
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
-        </div>
-        <script src="cordova.js"></script>
-        <script src="js/index.js"></script>
+
+        <ion-app>
+
+            <ion-tabs navigation>
+
+                <ion-tab index="0" tab="feed">
+                    <ion-header class="header">
+                        <ion-toolbar class="tool-bar">
+                            <div class="header-container | flex">
+                                <ion-icon class="header-icon" name="home"></ion-icon>
+                                <ion-label class="header-title">Feed</ion-label>
+                            </div>
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content class="content">
+                        <div class="content-container">There are no feeds yet</div>
+                        <ion-list class="pet-list | list" feeds="hidden">
+
+                        </ion-list>
+                    </ion-content>
+                </ion-tab>
+
+                <ion-tab index="1" tab="list">
+                    <ion-header class="header">
+                        <ion-toolbar class="tool-bar">
+                            <div class="header-container | flex">
+                                <ion-icon class="header-icon" name="paw"></ion-icon>
+                                <ion-label class="header-title">Pets List</ion-label>
+                            </div>
+                            <ion-searchbar placeholder="Search"></ion-searchbar>
+
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content class="content">
+                        <div class="content-container">There are no Pets added yet</div>
+                        <ion-list class="pet-list | list" petsList="hidden">
+
+                        </ion-list>
+                    </ion-content>
+                </ion-tab>
+
+
+                <ion-tab index="2" tab="add">
+                    <ion-header class="header">
+                        <ion-toolbar class="tool-bar">
+                            <div class="header-container | flex">
+                                <ion-icon class="header-icon" name="add"></ion-icon>
+                                <ion-label class="header-title">Add new Pet</ion-label>
+                            </div>
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content class="content">
+                        <div class="content-container">
+
+                            <ion-list class="form | list">
+                                <ion-label class="title-container">
+                                    <p class="title">New Pet</p>
+                                </ion-label>
+
+                                <ion-item>
+                                    <ion-input name="name" id="pet-name" placeholder="Pet name (ex: name)"
+                                        class="ion-input" />
+                                </ion-item>
+
+                                <ion-item>
+                                    <ion-select name="type" id="pet-type" aria-label="pets type"
+                                        placeholder="Select pet type" class="ion-input">
+                                        <ion-select-option value="dog">dog</ion-select-option>
+                                        <ion-select-option value="cat">cat</ion-select-option>
+                                        <ion-select-option value="bird">bird</ion-select-option>
+                                        <ion-select-option value="fish">fish</ion-select-option>
+                                        <ion-select-option value="other">other</ion-select-option>
+                                    </ion-select>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-datetime value="2022-04-21T00:00:00" min="2022-03-01T00:00:00"
+                                        max="2022-05-31T23:59:59" name="dob" class="ion-input | date-picker"
+                                        id="pet-dateofb" placeholder="date of birth" />
+
+                                </ion-item>
+                                <ion-textarea name="description" class="ion-input" id="pet-description"
+                                    placeholder="description"></ion-textarea>
+                            </ion-list>
+                            <ion-button class="btn" id="btn-add-pet">
+                                <ion-icon name="save" class="ion-icon"></ion-icon>
+                                Add Pet</ion-button>
+                        </div>
+                    </ion-content>
+                </ion-tab>
+
+
+                <ion-tab index="3" tab="settings">
+                    <ion-header class="header">
+                        <ion-toolbar class="tool-bar">
+                            <div class="header-container | flex">
+                                <ion-icon class="header-icon" name="settings"></ion-icon>
+                                <ion-label class="header-title">About</ion-label>
+                            </div>
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content class="content">
+                        <div class="example-content">About page</div>
+                    </ion-content>
+                </ion-tab>
+
+                <ion-tab-bar class="tab-bar" slot="bottom">
+
+                    <ion-tab-button class="navigation-tabs" active="true" tab="feed">
+                        <ion-icon name="home"></ion-icon>
+                        Feed
+                    </ion-tab-button>
+
+                    <ion-tab-button class="navigation-tabs" active="false" tab="list">
+                        <ion-icon name="paw"></ion-icon>
+                        Pets
+                    </ion-tab-button>
+
+                    <ion-tab-button class="navigation-tabs" active="false" tab="add">
+                        <ion-icon name="add"></ion-icon>
+                        Add
+                    </ion-tab-button>
+
+                    <ion-tab-button class="navigation-tabs" active="false" tab="settings">
+                        <ion-icon name="settings"></ion-icon>
+                        About
+                    </ion-tab-button>
+                </ion-tab-bar>
+            </ion-tabs>
+
+        </ion-app>
+
     </body>
+
 </html>

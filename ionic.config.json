@@ -1,0 +1,7 @@
+{
+  "name": "eu.johnmuler.mypetspro_jm",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
