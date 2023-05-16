@@ -14,7 +14,7 @@
         <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
         <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
-        <script src="cordova.js" defer></script>
+        <!-- <script src="cordova.js" defer></script> -->
 
         <script src="JS/app.js" type="module"></script>
         <link rel="stylesheet" href="Styles/style.css">
@@ -50,21 +50,25 @@
                             <div class="header-container | flex">
                                 <ion-icon class="header-icon" name="paw"></ion-icon>
                                 <ion-label class="header-title">Pets List</ion-label>
+                                <ion-badge petsCounter>0</ion-badge>
                             </div>
                             <ion-searchbar placeholder="Search"></ion-searchbar>
 
                         </ion-toolbar>
                     </ion-header>
                     <ion-content class="content">
-                        <div class="content-container">There are no Pets added yet</div>
-                        <ion-list class="pet-list | list" petsList="hidden">
-
-                        </ion-list>
+                        <div class="content-container">
+                            <ion-label notifyLabel>
+                                <p>There are no pets yet</p>
+                            </ion-label>
+                            <ion-list petsList="hidden" class="pet-list | list">
+                            </ion-list>
+                        </div>
                     </ion-content>
                 </ion-tab>
 
-
                 <ion-tab index="2" tab="add">
+
                     <ion-header class="header">
                         <ion-toolbar class="tool-bar">
                             <div class="header-container | flex">
@@ -73,13 +77,11 @@
                             </div>
                         </ion-toolbar>
                     </ion-header>
+
                     <ion-content class="content">
                         <div class="content-container">
 
                             <ion-list class="form | list">
-                                <ion-label class="title-container">
-                                    <p class="title">New Pet</p>
-                                </ion-label>
 
                                 <ion-item>
                                     <ion-input name="name" id="pet-name" placeholder="Pet name (ex: name)"
@@ -96,22 +98,95 @@
                                         <ion-select-option value="other">other</ion-select-option>
                                     </ion-select>
                                 </ion-item>
-                                <ion-item>
-                                    <ion-datetime value="2022-04-21T00:00:00" min="2022-03-01T00:00:00"
-                                        max="2022-05-31T23:59:59" name="dob" class="ion-input | date-picker"
-                                        id="pet-dateofb" placeholder="date of birth" />
 
+                                <ion-item>
+                                    <ion-buttons>
+                                        <ion-button id="open-date-model" index="0">
+                                            <ion-icon name="time" class="ion-icon"></ion-icon>
+                                            <span date>2023/05/10</span>
+                                        </ion-button>
+                                        <ion-button id="add-image-model">
+                                            <ion-icon name="image" class="ion-icon"></ion-icon>
+                                            <span>Add Image</span>
+                                        </ion-button>
+
+                                    </ion-buttons>
                                 </ion-item>
-                                <ion-textarea name="description" class="ion-input" id="pet-description"
-                                    placeholder="description"></ion-textarea>
+
+                                <ion-item>
+
+                                    <ion-textarea name="medical_history" class="ion-input | text-area"
+                                        id="pet-med-history" placeholder="Medical History"></ion-textarea>
+                                </ion-item>
+
+                                <ion-item>
+                                    <ion-button class="btn" id="btn-add-pet">
+                                        <ion-icon name="save" class="ion-icon"></ion-icon>
+                                        <span>Add Pet</span>
+                                    </ion-button>
+                                </ion-item>
+
+                                <ion-modal trigger="open-date-model">
+                                    <ion-header>
+                                        <ion-toolbar>
+                                            <ion-buttons slot="start">
+                                                <ion-button index="0" id="cancelDateBtn"
+                                                    class="model-cancel">Cancel</ion-button>
+                                            </ion-buttons>
+                                            <ion-buttons slot="end">
+                                                <ion-button id="confirmDateBtn" strong="true">Confirm</ion-button>
+                                            </ion-buttons>
+                                        </ion-toolbar>
+                                    </ion-header>
+                                    <ion-content class="ion-padding">
+
+
+                                        <ion-label>
+                                            <p>Select date of adoption or date of birth</p>
+                                        </ion-label>
+
+                                        <ion-datetime name="dob" class="date-picker" id="pet-date-of-birth" />
+                                    </ion-content>
+                                </ion-modal>
+
+                                <ion-modal trigger="add-image-model">
+                                    <ion-header>
+                                        <ion-toolbar>
+                                            <ion-buttons slot="start">
+                                                <ion-button index="1" class="">Cancel</ion-button>
+                                            </ion-buttons>
+                                            <ion-title>Welcome</ion-title>
+                                            <ion-buttons slot="end">
+                                                <ion-button onclick="confirm()" strong="true">Confirm</ion-button>
+                                            </ion-buttons>
+                                        </ion-toolbar>
+                                    </ion-header>
+                                    <ion-content class="ion-padding">
+                                        <ion-item>
+                                            <!-- create capture image input -->
+                                            <ion-item>
+                                                <ion-button class="btn" id="btn-capture-image">
+                                                    <ion-icon name="camera" class="ion-icon"></ion-icon>
+                                                    Capture Image</ion-button>
+                                            </ion-item>
+
+                                            <!-- create upload image input -->
+
+                                            <ion-item>
+                                                <ion-button class="btn" id="btn-upload-image">
+                                                    <ion-icon name="cloud-upload" class="ion-icon"></ion-icon>
+                                                    Upload Image</ion-button>
+                                            </ion-item>
+                                        </ion-item>
+                                    </ion-content>
+                                </ion-modal>
+
                             </ion-list>
-                            <ion-button class="btn" id="btn-add-pet">
-                                <ion-icon name="save" class="ion-icon"></ion-icon>
-                                Add Pet</ion-button>
+
                         </div>
                     </ion-content>
-                </ion-tab>
 
+                </ion-tab>
 
                 <ion-tab index="3" tab="settings">
                     <ion-header class="header">

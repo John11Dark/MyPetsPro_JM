@@ -390,4 +390,24 @@ keyword[primary] {
 
 .list {
   background-color: transparent;
+  display: grid;
+  place-content: center;
+  place-items: center;
+  place-self: center;
+}
+
+ion-item {
+  --background: transparent;
+}
+.petCard {
+  min-width: 400px;
+  min-height: 200px;
+  padding: var(--spacing-400) var(--spacing-500);
+  margin: var(--spacing-300);
+  display: grid;
+  place-self: center;
+  justify-content: left;
+  justify-items: start;
+  align-content: center;
+  align-items: center;
 }
