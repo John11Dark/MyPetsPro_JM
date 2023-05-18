@@ -117,6 +117,7 @@
     --opacity-dark-100: #11100ed7;
     --opacity-dark-300: #0e0b0ae5;
     --opacity-light-100: #ffffff26;
+    --input-background-color: #353434b7;
   }
 }
 
@@ -188,30 +189,18 @@ body {
   color: var(--primary-color);
   padding: 0 var(--spacing-300);
 }
-.logo-icon {
-  width: 30px;
-  height: 30px;
-  margin: 0 0.25em;
-}
-
-.logo-title {
-  font-size: var(--font-500);
-  font-weight: 800;
-  font-family: var(--primary-font);
-}
 
 .btn-label {
   font-size: var(--font-400);
 }
 
 .counter-label {
-  font-size: var(--font-300);
-  height: 25px;
-  width: 25px;
-  border-radius: var(--radius-200);
+  font-size: var(--font-200);
+  height: 30px;
+  width: 30px;
+  border-radius: var(--radius-100);
   background-color: var(--primary-color);
   color: var(--primary-color-light);
-  text-align: center;
   margin: 0.5em;
   font-weight: 800;
 }
@@ -270,12 +259,6 @@ keyword[primary] {
 
 .ion-input {
   color: var(--surface-grayish) !important;
-}
-
-.btn {
-  --background: var(--primary-color);
-  transform: translate(50%, 50%);
-  height: 50px;
 }
 
 .ion-icon {
@@ -352,7 +335,7 @@ keyword[primary] {
   color: var(--secondary-color);
 }
 
-.navigation-tabs[active="true"] {
+.navigation-tabs[highlight="true"] {
   color: var(--primary-color);
 }
 
@@ -386,6 +369,10 @@ keyword[primary] {
 
 .content-container {
   padding: var(--spacing-400);
+  display: grid;
+  place-content: center;
+  place-items: center;
+  place-self: center;
 }
 
 .list {
@@ -396,18 +383,179 @@ keyword[primary] {
   place-self: center;
 }
 
+.form {
+  max-width: 350px;
+  height: 500px;
+  padding: var(--spacing-400);
+  border-radius: var(--radius-200);
+  margin: 6em auto;
+  justify-content: start !important;
+  justify-items: start !important;
+  background-color: var(--primary-color-light);
+}
+
 ion-item {
   --background: transparent;
 }
-.petCard {
-  min-width: 400px;
-  min-height: 200px;
-  padding: var(--spacing-400) var(--spacing-500);
+
+.petCard-container {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  width: 350px;
+  height: 200px;
+  overflow: hidden !important;
+  display: grid;
+  place-content: center;
+  place-items: center;
+  place-self: center;
   margin: var(--spacing-300);
+  border-radius: var(--radius-200);
+}
+
+.petCard-container[hide="true"] {
+  display: none;
+}
+
+.petCard {
+  width: 350px;
+  height: 200px;
+  padding: var(--spacing-400) var(--spacing-500);
   display: grid;
   place-self: center;
   justify-content: left;
   justify-items: start;
   align-content: center;
   align-items: center;
+  border-radius: var(--radius-200);
+  color: var(--primary-color-light);
+  background: #dfdede1e;
+  border: 2px solid #ffffff31;
+  opacity: 1;
+  box-shadow: 0 0 0.5em 0.2em #ebe9e91a;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+.card-effect {
+  width: 150px;
+  height: 150px;
+  z-index: -1;
+  position: absolute;
+  right: 0;
+  top: 1.5em;
+  display: grid;
+  place-content: center;
+  place-items: center;
+  place-self: center;
+}
+
+.card-effect[left="true"] {
+  left: 0;
+  bottom: 0;
+  top: unset;
+  right: unset;
+}
+.circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #ffffff4d;
+  z-index: -1;
+  right: 0;
+  top: 0;
+  opacity: 0.6;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.circle[primary] {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 1em 0.4em var(--primary-color);
+  transform: translate(10%, 10%);
+}
+
+.circle[secondary] {
+  background-color: var(--primary-color-light);
+  box-shadow: 0 0 1em 0.5em var(--primary-color-light);
+  transform: translate(-10%, -10%);
+}
+
+.card-effect[left="true"] .circle[primary] {
+  transform: translate(-10%, 10%);
+  background-color: var(--primary-color-light);
+  box-shadow: 0 0 1em 0.5em var(--primary-color-light);
+}
+.card-effect[left="true"] .circle[secondary] {
+  transform: translate(10%, -10%);
+  background-color: var(--primary-color);
+  box-shadow: 0 0 1em 0.4em var(--primary-color);
+}
+.pet-details-container {
+  padding-bottom: var(--spacing-200);
+  margin-bottom: var(--spacing-200);
+  border-bottom: 3px solid var(--primary-color);
+}
+
+.card-footer {
+  margin-top: var(--spacing-300);
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.bold {
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.footer-content {
+  font-size: 12px !important;
+  color: #cecbc8 !important;
+}
+
+.form-item {
+  margin-bottom: var(--spacing-300);
+  display: grid;
+  place-content: start;
+  place-items: center;
+  place-self: center;
+  padding: unset !important;
+  --background: var(--input-background-color) !important;
+  border-radius: var(--radius-200);
+  border: 2px solid #ffffff31;
+}
+.item-button-container {
+  background-color: transparent;
+  border: unset;
+}
+.select-date-button {
+  --background: var(--input-background-color);
+  --color: var(--surface-grayish);
+  font-size: var(--font-100);
+  font-weight: 300;
+  font-family: var(--secondary-font);
+  width: 290px;
+  height: 55px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto var(--spacing-300);
+}
+
+.ion-input {
+  --background: transparent;
+  --color: var(--primary-color-light);
+  font-size: var(--font-100);
+  font-weight: 300;
+  font-family: var(--secondary-font);
+  height: 55px;
+  width: 300px;
+}
+
+.add-btn {
+  --background: var(--primary-color);
+  transform: translate(27.5%, 40%);
+  height: 50px;
 }
