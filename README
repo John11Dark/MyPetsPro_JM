@@ -1,18 +1,14 @@
-b. Validate the fields when saving a new pet, showing an error alert if any required field is empty.
-c. Automatically save the creation date and time of the pet.
-d. Save the pet data as a JSON object in the localStorage.
-e. Activate the "List Pets" tab after saving a pet.
-f. Enhance the "List Pets" tab to display the pets in an <ion-list> with the necessary details.
 g. Add icons/buttons for adding and viewing pet images.
 
-h. Implement tabs using <ion-tabs> for navigation to screens: List, Add, and About.
 i. Create the "About" screen with the app's icon, description, and your name.
 Additional tasks:
 
-Implement the functionality to delete a pet and update the UI accordingly.
 Enable reordering of pets using <ion-reorder> and save the order in the localStorage.
 Utilize the Cordova camera plugin (cordova-plugin-camera) to capture and link images to pets.
 Implement a light/dark theme toggle in the app's toolbar.
+
 Add an extra functionality that is original, utilizes an additional Cordova plugin, and improves the app's utility.
+
 Install the Cordova Network plugin to detect changes in network connectivity and show warning messages.
+
 Configure the app's logo in config.xml and build the Cordova project to an Android APK file for testing.
