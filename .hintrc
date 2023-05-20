@@ -21,6 +21,12 @@
           "overscroll-behavior-inline"
         ]
       }
+    ],
+    "axe/parsing": [
+      "default",
+      {
+        "duplicate-id": "off"
+      }
     ]
   }
 }

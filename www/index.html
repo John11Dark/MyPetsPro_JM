@@ -18,6 +18,7 @@
 
         <script src="JS/app.js" type="module"></script>
         <link rel="stylesheet" href="Styles/style.css">
+        <link rel="icon" type="image/png" href="assets/logo.png">
 
     </head>
 
@@ -25,28 +26,160 @@
 
         <ion-app>
 
-            <ion-tabs navigation>
+
+            <ion-modal index="0" trigger="open-language-model">
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-buttons slot="start">
+                            <ion-button index="0" id="cancelDateBtn" class="model-cancel">Cancel</ion-button>
+                        </ion-buttons>
+                        <ion-buttons slot="end">
+                            <ion-button id="confirmDateBtn" strong="true">Confirm</ion-button>
+                        </ion-buttons>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content class="ion-padding">
+
+
+                    <ion-label>
+                        <p>Select date of adoption or date of birth</p>
+                    </ion-label>
+
+                    <ion-datetime name="dob" class="date-picker" id="pet-date-of-birth" />
+                </ion-content>
+            </ion-modal>
+
+            <ion-modal index="0" trigger="open-date-model">
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-buttons slot="start">
+                            <ion-button index="0" id="cancelDateBtn" class="model-cancel">Cancel</ion-button>
+                        </ion-buttons>
+                        <ion-buttons slot="end">
+                            <ion-button id="confirmDateBtn" strong="true">Confirm</ion-button>
+                        </ion-buttons>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content class="ion-padding">
+
+
+                    <ion-label>
+                        <p>Select date of adoption or date of birth</p>
+                    </ion-label>
+
+                    <ion-datetime name="dob" class="date-picker" id="pet-date-of-birth" />
+                </ion-content>
+            </ion-modal>
+
+            <ion-menu content-id="main-content" class="ion-menu">
+
+                <ion-content class="ion-padding | ion-menu">
+
+                    <div class="ion-menu | ion-menu-container">
+
+
+                        <div class="menu-inner-container | preference">
+
+                            <div class="ion-menu-title">
+                                <ion-icon name="information-circle-outline" class="ion-menu-icon"></ion-icon>
+                                <span>preference</span>
+                            </div>
+
+                            <div class="toggle-container | flex">
+                                <ion-icon class="ion-toggle-icon" name="sunny-outline" theme-toggle-icon></ion-icon>
+                                <ion-toggle checked="true" theme-toggle>Dark Them</ion-toggle>
+                            </div>
+
+                            <div class="toggle-container | flex">
+                                <ion-icon class="ion-toggle-icon" name="reader-outline" alert-toggle-icon></ion-icon>
+                                <ion-toggle checked="true" alert-toggle>Alert</ion-toggle>
+                            </div>
+
+                            <div class="toggle-container | flex">
+                                <ion-icon class="ion-toggle-icon" name="notifications-outline"
+                                    notifications-toggle-menu></ion-icon>
+                                <ion-toggle checked="false" notifications-toggle>Notifications</ion-toggle>
+                            </div>
+
+                            <div class="toggle-container | flex">
+                                <ion-icon class="ion-toggle-icon" name="volume-high-outline"
+                                    sound-toggle-icon></ion-icon>
+                                <ion-toggle checked="false" sound-toggle>Sound</ion-toggle>
+                            </div>
+
+                        </div>
+
+                        <div class="menu-inner-container | settings">
+
+                            <div class="ion-menu-title">
+                                <ion-icon name="settings" class="ion-menu-icon"></ion-icon>
+                                <span> settings</span>
+                            </div>
+
+                            <div class="menu-button-item | delete">
+                                <ion-icon name="trash" class="ion-menu-icon | button"></ion-icon>
+                                <span>
+                                    delete all pets
+                                </span>
+                            </div>
+
+                            <div class="menu-button-item | generate">
+                                <ion-icon name="newspaper-outline" class="ion-menu-icon | button"></ion-icon>
+                                <span>
+                                    Add dummy pets
+                                </span>
+                            </div>
+
+                            <div class="menu-button-item | language" trigger="open-language-model">
+                                <ion-icon name="text-outline" class="ion-menu-icon | button"></ion-icon>
+                                <span>
+                                    language
+                                </span>
+                            </div>
+
+                            <div class="menu-button-item | log-out">
+                                <ion-icon name="log-out-outline" class="ion-menu-icon | button"></ion-icon>
+                                <span>
+                                    Logout
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </ion-content>
+
+            </ion-menu>
+
+            <ion-tabs>
 
                 <ion-tab index="0" tab="feed">
+
                     <ion-header class="header">
                         <ion-toolbar class="tool-bar">
                             <div class="header-container | flex">
-                                <ion-icon class="header-icon" name="home"></ion-icon>
+                                <ion-img class="logo" src="assets/logo.png" alt="My Pets Pro paw logo"></ion-img>
                                 <ion-label class="header-title">Feed</ion-label>
                             </div>
+                            <ion-buttons slot="end">
+                                <ion-menu-button class="menu-button"></ion-menu-button>
+                            </ion-buttons>
                         </ion-toolbar>
                     </ion-header>
-                    <ion-content class="content">
+
+                    <ion-content class="content" id="main-content">
+
                         <div class="content-container">
 
-                            <ion-list class="pet-list | list" feeds="hidden">
+                            <ion-list class="feed-container" visible="false" feedList>
 
                             </ion-list>
 
-                            <ion-label>
-                                <ion-icon name="home" class="ion-icon | paw"></ion-icon>
-                                <p>There are no feeds yet</p>
-                            </ion-label>
+                            <ion-img visible="true" notify class="no-feed-img" src="assets/no-feeds.png"
+                                alt="no feeds illustration image"></ion-img>
 
                         </div>
                     </ion-content>
@@ -57,20 +190,21 @@
                     <ion-header class="header">
                         <ion-toolbar class="tool-bar">
                             <div class="header-container | flex">
-                                <ion-icon class="header-icon" name="paw"></ion-icon>
-                                <ion-label class="header-title">Pets List</ion-label>
-                                <ion-badge class="counter-label" petsCounter>0</ion-badge>
+                                <ion-img class="logo" src="assets/logo.png" alt="My Pets Pro paw logo"></ion-img>
+                                <ion-label class="header-title">Pets</ion-label>
+                                <ion-badge class="counter-label" petsCounter> 0 </ion-badge>
                             </div>
-                            <ion-searchbar autocomplete="on" placeholder="Search"></ion-searchbar>
-
+                            <ion-buttons slot="end">
+                                <ion-menu-button class="menu-button"></ion-menu-button>
+                            </ion-buttons>
                         </ion-toolbar>
                     </ion-header>
-                    <ion-content class="content">
+
+                    <ion-content class="content" id="main-content">
                         <div class="content-container">
-                            <ion-label notifyLabel>
-                                <p>There are no pets yet</p>
-                            </ion-label>
+                            <ion-searchbar class="search-bar" autocomplete="on" placeholder="Search"></ion-searchbar>
                             <ion-list petsList="hidden" class="pet-list | list">
+
                             </ion-list>
                         </div>
                     </ion-content>
@@ -81,112 +215,96 @@
                     <ion-header class="header">
                         <ion-toolbar class="tool-bar">
                             <div class="header-container | flex">
-                                <ion-icon class="header-icon" name="add"></ion-icon>
-                                <ion-label class="header-title">Add new Pet</ion-label>
+                                <ion-img class="logo" src="assets/logo.png" alt="My Pets Pro paw logo"></ion-img>
+                                <ion-label class="header-title">Add Pet</ion-label>
                             </div>
+                            <ion-buttons slot="end">
+                                <ion-menu-button class="menu-button"></ion-menu-button>
+                            </ion-buttons>
                         </ion-toolbar>
                     </ion-header>
 
+                    <ion-content class="content" id="main-content">
+                        <div class="content-container">
 
-                    <ion-content class="content">
-                        <div class="content-container">There are no feeds yet</div>
-                        <ion-list class="form | list">
+                            <form class="form">
 
-                            <ion-item class="form-item | ion-item">
-                                <ion-input type="text" required name="name" id="pet-name"
-                                    placeholder="Pet name (ex: rex)" class="ion-input" />
-                            </ion-item>
+                                <div class="flex | form-separator">
 
-                            <ion-button id="open-date-model" index="0" class="select-date-button">
-                                <ion-icon name="time" class="ion-icon | time"></ion-icon>
-                                <span date>Date of birth</span>
-                            </ion-button>
+                                    <div class="input-wrapper">
+                                        <ion-input type="text" required name="name" id="pet-name"
+                                            placeholder="Pet name (ex: rex)" class="ion-input">
+                                        </ion-input>
 
-                            <ion-item class="form-item | ion-item | flex">
-                                <ion-select required name="type" id="pet-type" aria-label="pets type"
-                                    placeholder="Pet type" class="ion-input">
-                                    <ion-select-option value="dog">dog</ion-select-option>
-                                    <ion-select-option value="cat">cat</ion-select-option>
-                                    <ion-select-option value="bird">bird</ion-select-option>
-                                    <ion-select-option value="fish">fish</ion-select-option>
-                                    <ion-select-option value="other">other</ion-select-option>
-                                </ion-select>
-                            </ion-item>
+                                        <ion-select required name="type" id="pet-type" aria-label="pets type"
+                                            placeholder="Pet type" class="ion-input">
+                                            <ion-select-option value="dog">dog</ion-select-option>
+                                            <ion-select-option value="cat">cat</ion-select-option>
+                                            <ion-select-option value="bird">bird</ion-select-option>
+                                            <ion-select-option value="fish">fish</ion-select-option>
+                                            <ion-select-option value="other">other</ion-select-option>
+                                        </ion-select>
 
-                            <ion-item class="form-item | ion-item">
+                                    </div>
+                                    <ion-button id="open-date-model" index="0" class="select-date-button">
+                                        <ion-icon name="time" class="ion-icon | time"></ion-icon>
+                                        <span date>Date of birth</span>
+                                    </ion-button>
+                                </div>
+
                                 <ion-textarea name="medical_history" class="ion-input | text-area" id="pet-med-history"
                                     placeholder="Medical History"></ion-textarea>
-                            </ion-item>
 
-                            <ion-button class="add-btn | priamry-btn" id="btn-add-pet">
-                                <ion-icon name="save" class="ion-icon"></ion-icon>
-                                <span>Add Pet</span>
-                            </ion-button>
+                                <div class="action-btns">
+                                    <ion-button type="reset" class="form-Btn | clear-btn | secondary-btn"
+                                        id="btn-clear-form">
+                                        <ion-icon name="remove-circle-outline" class="ion-btn-icon"></ion-icon>
+                                        <span class="btn-lbl">Clear</span>
+                                    </ion-button>
 
-                            <ion-modal index="0" trigger="open-date-model">
-                                <ion-header>
-                                    <ion-toolbar>
-                                        <ion-buttons slot="start">
-                                            <ion-button index="0" id="cancelDateBtn"
-                                                class="model-cancel">Cancel</ion-button>
-                                        </ion-buttons>
-                                        <ion-buttons slot="end">
-                                            <ion-button id="confirmDateBtn" strong="true">Confirm</ion-button>
-                                        </ion-buttons>
-                                    </ion-toolbar>
-                                </ion-header>
-                                <ion-content class="ion-padding">
+                                    <ion-button type="submit" class="form-Btn | add-btn | primary-btn" id="btn-add-pet">
+                                        <ion-icon name="save" class="ion-btn-icon"></ion-icon>
+                                        <span class="btn-lbl">Add Pet</span>
+                                    </ion-button>
+                                </div>
 
+                            </form>
 
-                                    <ion-label>
-                                        <p>Select date of adoption or date of birth</p>
-                                    </ion-label>
-
-                                    <ion-datetime name="dob" class="date-picker" id="pet-date-of-birth" />
-                                </ion-content>
-                            </ion-modal>
-                        </ion-list>
+                            <ion-img class="add-pet-img" src="assets/add-new-pet.png" alt="pets illustration image">
+                        </div>
                     </ion-content>
+
                 </ion-tab>
 
-                <ion-tab index="3" tab="settings">
+                <ion-tab index="3" tab="about">
                     <ion-header class="header">
                         <ion-toolbar class="tool-bar">
                             <div class="header-container | flex">
-                                <ion-icon class="header-icon" name="settings"></ion-icon>
+                                <ion-img class="logo" src="assets/logo.png" alt="My Pets Pro paw logo"></ion-img>
                                 <ion-label class="header-title">About</ion-label>
                             </div>
+                            <ion-buttons slot="end">
+                                <ion-menu-button class="menu-button"></ion-menu-button>
+                            </ion-buttons>
                         </ion-toolbar>
                     </ion-header>
-                    <ion-content class="content">
-                        <div class="content-container">
-                            <ion-list class="list | about-list">
-                                <ion-item>
-                                    <ion-avatar slot="start">
-                                        <img src="assets/icon/icon.png" alt="app logo" />
-                                    </ion-avatar>
-                                    <ion-label>
-                                        <h2>Pet Tracker</h2>
-                                        <p>Track your pets</p>
-                                    </ion-label>
-                                </ion-item>
-                                <ion-item>
-                                    <ion-label>Version</ion-label>
-                                    <ion-label>1.0.0</ion-label>
-                                </ion-item>
-                                <ion-item>
-                                    <ion-label>Author</ion-label>
-                                    <ion-label>John Muller</ion-label>
-                                </ion-item>
-                                <ion-item>
-                                    <ion-label>License</ion-label>
-                                    <ion-label>Apache-2.0</ion-label>
-                                </ion-item>
-                                <ion-item>
-                                    <p>
-                                        copy right &copy; 2023 john muller all rights reserved
-                                    </p>
 
+                    <ion-content class="content">
+
+                        <div class="content-container">
+                            <ion-img src="assets/logo-my.png" class="about-logo-img" alt="app logo">
+                            </ion-img>
+                            <ion-label platform> IOS </ion-label>
+                            <ion-label version>Version 1.0.0</ion-label>
+
+                            <ion-label class="label | description">Efficiently track and manage pets
+                                with the my pets pro. Streamline
+                                operations, monitor pet details,
+                                and enhance communication in
+                                one place.</ion-label>
+                            <ion-label class="label | copy-right">Copy right &copy; 2023 <a href="https://johnmuller.eu"
+                                    referrerpolicy="no-referrer-when-downgrade">John Muller </a>all rights
+                                reserved</ion-label>
                         </div>
                     </ion-content>
                 </ion-tab>
@@ -209,8 +327,8 @@
                         Add
                     </ion-tab-button>
 
-                    <ion-tab-button class="navigation-tabs" highlight="false" tab="settings">
-                        <ion-icon name="settings"></ion-icon>
+                    <ion-tab-button class="navigation-tabs" highlight="false" tab="about">
+                        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                         About
                     </ion-tab-button>
                 </ion-tab-bar>

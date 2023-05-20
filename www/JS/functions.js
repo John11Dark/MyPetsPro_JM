@@ -1,5 +1,5 @@
-export function handleInput(event) {
-  const pets = document.querySelectorAll(".petCard-container");
+export function handleSearchInput(event) {
+  const pets = document.querySelectorAll(".search-item-elements");
   const query = event.target.value.trim().toLowerCase();
   if (query === "" || query === null) return handleClear();
   requestAnimationFrame(() => {
@@ -13,7 +13,7 @@ export function handleInput(event) {
 }
 
 export function handleClear() {
-  const pets = document.querySelectorAll(".petCard-container");
+  const pets = document.querySelectorAll(".search-item-elements");
   pets.forEach((pet) => {
     pet.removeAttribute("hide");
   });
@@ -50,9 +50,13 @@ export async function handleSubmit(data, exception, utils, inputFields) {
       else return presentAlert("New Pet", "error", "Please fill in all fields");
     if (value != null && key != "images") value.trim();
   }
-  presentAlert("Confirm", "save", "do you want to save pet!", [
+  presentAlert("Save", null, "do you want to save pet!", [
     {
-      text: "save",
+      text: "Cancel",
+      role: "cancel",
+    },
+    {
+      text: "Save",
       role: "confirm",
       handler: () => {
         resetForm(inputFields);
@@ -61,7 +65,7 @@ export async function handleSubmit(data, exception, utils, inputFields) {
         data = {
           ...data,
           date: new Date(),
-          id: `${Date.now()}, ${data.to}`,
+          id: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
           folder: data.petType,
         };
         const newPetsList = [...prevPetsList, data];
@@ -70,21 +74,126 @@ export async function handleSubmit(data, exception, utils, inputFields) {
         setPets(utils);
       },
     },
-    {
-      text: "Cancel",
-      role: "cancel",
-      handler: () => console.log(`cancel has been clicked`),
-    },
   ]);
 }
 
-export async function getPets() {
-  const pets = JSON.parse(localStorage.getItem("pets"));
-  if (pets) return await pets;
+/**
+ * Retrieves the pets from the local storage.
+ * @returns {Promise<Array>} - A promise that resolves to the array of pets, or an empty array if there are no pets in the local storage.
+ */
+export function getPets() {
+  return new Promise((resolve) => {
+    const pets = JSON.parse(localStorage.getItem("pets"));
+    resolve(pets || []);
+  });
 }
 
 /**
- * ? This function is responsible to delete a single pet from pets list.
+ * This function is responsible for setting up the feeds page.
+ * @param {HTMLElement} list - The list element for displaying pets.
+ * @param {HTMLElement} notify - The notification element to notify if there is no feeds.
+ */
+export async function setFeeds(list, notify, pets) {
+  // ? * --> If there are no pets
+
+  if (!pets || pets.length === 0) {
+    // ? * --> If there are no pets, inform the user and hide the list
+    notify.setAttribute("visible", "true");
+    list.setAttribute("visible", "false");
+    return;
+  }
+
+  // ? * --> If there are pets
+  // ? * --> Clear inner HTML of the feeds list
+  // ? * --> Hide the notification and show the list
+  notify.setAttribute("visible", "false");
+  list.innerHTML = "";
+  list.setAttribute("visible", "true");
+
+  // ? * --> Loop through the pets and create a feed card for each pet
+  pets.forEach((pet) => {
+    // ? * --> Determine the medical history text to be displayed
+    const petMedHis =
+      pet.medicalHistory || `${pet.name} has no medical history`;
+
+    // ? * --> Create a feed item for the pets List and set its attributes
+    const petItem = document.createElement("ion-item");
+    petItem.className = "ion-item";
+    petItem.setAttribute("readMore", false);
+    petItem.setAttribute("id", pet.id);
+
+    // ? * --> Set the inner HTML of the feed item
+    petItem.innerHTML = `
+    <div class="feed-card">
+
+        <span class="feed-card-added-date">${setDate(pet.date)}</span>
+
+        <div class="feed-card-header-container">
+            <ion-img class="feed-card-avatar" src="assets/${
+              pet.type.toLowerCase() === "other" ? "logo" : pet.type
+            }.png"
+                alt="${pet.type} avatar image"></ion-img>
+            <ion-title class="feed-card-name-label"> ${pet.name} </ion-title>
+        </div>
+
+        <ion-label>
+            <span class="feed-card-bold-label">Type</span>
+            <span class="feed-card-paragraph">${pet.type}</span>
+        </ion-label>
+
+        <ion-label>
+            <span class="feed-card-bold-label">Date</span>
+            <span class="feed-card-paragraph">${pet.dob}</span>
+        </ion-label>
+
+        <ion-label>
+        <span class="feed-card-bold-label">Medical history</span>
+        <br>
+        <span medicalHistoryLabel class="feed-card-paragraph">
+        ${petMedHis}
+        </span>
+    </ion-label>
+
+    </div>
+    `;
+    // ? * --> Append the feed item to the feeds list
+    list.appendChild(petItem);
+  });
+}
+
+/**
+ * Sets the past time representation for a given date attribute.
+ * @param {string} dateAttribute - The date attribute to convert to a past time representation.
+ * @returns {string} - The past time representation of the given date attribute.
+ */
+export function setDate(dateAttribute) {
+  const date = new Date(dateAttribute);
+  const now = new Date();
+
+  const seconds = Math.floor((now - date) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(months / 12);
+
+  if (years > 0) {
+    return `${years} year${years > 1 ? "s" : ""} ago`;
+  } else if (months > 0) {
+    return `${months} month${months > 1 ? "s" : ""} ago`;
+  } else if (days > 0) {
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+  } else {
+    return `${seconds} second${seconds === 1 ? "" : "s"} ago`;
+  }
+}
+
+/**
+ *  This function is responsible to delete a single pet from pets list.
  *
  * @param {Array} pets - The array of pets.
  * @param {string} id - The ID of the pet to be deleted.
@@ -127,66 +236,72 @@ export function deletePet(pets, id, utils) {
 }
 
 export async function setPets(utils) {
-  const pets = await getPets();
+  // ? * --> declare a counter to count the number of pets
   let petsCounter = 0;
 
+  // ? * --> Get the pets from local storage
+
+  const pets = await getPets();
+
+  // ? * --> If there are pets
   if (pets && pets.length > 0) {
+    // ? * --> Enable the "Pets List" tab
     utils.tab.removeAttribute("disabled");
+    // ? * --> clear the pets inner HTML list
     utils.list.innerHTML = "";
+    // ? * --> Set the pets list to visible
     utils.list.setAttribute("petsList", "visible");
+    // ? * --> Hide the notification label
     utils.notify?.setAttribute("notifyLabel", "hidden");
-    for (const index in pets) {
-      const petItem = document.createElement("ion-item");
-      petItem.setAttribute("class", "pet-item");
-      const petMedHisValue = `          ${
-        pets[index].medicalHistory != null
-          ? `<h2> <strong class="bold">Pet Medical History:</strong> ${pets[index].medicalHistory}</h2>`
-          : ""
-      }`;
+    // ? * --> Set the feeds list
+    if (utils.feedList) setFeeds(utils.feedList, utils.notify, pets);
+    // ? * --> create a pet item for each pet
+    pets.forEach((pet) => {
+      // ? * --> create a pet item and set its attributes
+      const petItem = document.createElement("ion-item-sliding");
+      petItem.className = "pet-item | search-item-elements";
+      // ? * --> set the pet item name and type attributes for the search functionality
+      petItem.setAttribute("name", pet.name);
+      petItem.setAttribute("type", pet.type);
+      petItem.setAttribute("hide", false);
+
+      // ? * --> set the pet item inner HTML
       petItem.innerHTML = `
-        <div class="petCard-container" hide name="${pets[index].name}" type="${
-        pets[index].type
+
+      <ion-item-options side="start">
+      <ion-item-option color="medium" class="edit-button" id="${
+        // ? * --> set the pet item id to the pet id for the edit functionality
+        pet.id
       }">
-        <div class="card-effect" left="${index % 2 === 0}">
-            <div primary class="circle"> </div>
-            <div secondary class="circle"> </div>
-            </div>
-            <ion-button class="delete-btn" fill="clear" color="danger" slot="end" id="${
-              pets[index].id
-            }">
-                <ion-icon name="trash-outline"></ion-icon>
-            </ion-button>
-  
-        <ion-card class="petCard" card>
-            
-            <ion-avatar slot="start" class="pet-avatar">
-                <ion-img src="${pets[index]?.image}"
-                    alt="${pets[index].name} image"></ion-img>
-            </ion-avatar>
-            <ion-label class="pet-details-container">
-            <h2> <strong class="bold">Pet name:</strong> ${
-              pets[index].name
-            }</h2>
-            <h2> <strong class="bold">Pet Type:</strong> ${
-              pets[index].type
-            }</h2>
-            <h2> <strong class="bold">Pet Date:</strong> ${pets[index].dob}</h2>
-            ${petMedHisValue}
-            </ion-label>
-  
-                <ion-label class="flex | card-footer">
-                    <p class="footer-content"> <strong >added by</strong> John Muller</p>
-                    <p class="footer-content"> <strong >added on</strong> ${
-                      pets[index].date
-                    }</p>
-                </ion-label>
-  
-        </ion-card>
-        </div>
-          `;
+      <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+    </ion-item-option>
+    </ion-item-options>
+
+    <ion-item class="pet-item">
+    
+    <div class="list-feed-card-container">
+        <span class="feed-card-added-date">${setDate(pet.date)}</span>
+        <ion-img class="feed-card-avatar" src="assets/${
+          pet.type.toLowerCase() === "other" ? "logo" : pet.type
+        }.png"
+            alt="${pet.type} avatar image"></ion-img>
+        <ion-title class="feed-card-name-label"> ${pet.name} </ion-title>
+      </div>
+
+    </ion-item>
+
+    <ion-item-options slot="end">
+      <ion-item-option color="danger" class="delete-btn" id="${
+        // ? * --> set the pet item id to the pet id for the delete functionality
+        pet.id
+      }">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-item-option>
+    </ion-item-options>`;
+
       utils.list.appendChild(petItem);
       petsCounter++;
-    }
+    });
   } else {
     utils.list.setAttribute("petsList", "hidden");
     utils.notify.setAttribute("notifyLabel", "visible");
@@ -209,6 +324,94 @@ export async function setPets(utils) {
       });
     });
   }
-
   utils.counterLabel.innerText = petsCounter;
+}
+
+export function generateFakePets(petsNumber) {
+  const pets = [];
+  // Array of possible pet types
+  const petTypes = ["dog", "cat", "bird", "fish", "other"];
+
+  // Generate a random pet name
+  function generatePetName() {
+    const names = [
+      "Max",
+      "Bella",
+      "Charlie",
+      "Luna",
+      "Oliver",
+      "Lucy",
+      "Leo",
+      "Lily",
+      "Rocky",
+      "Molly",
+      "Rex",
+      "Cooper",
+      "Daisy",
+      "Rocky",
+      "Molly",
+      "Charlie",
+      "Bella",
+      "Max",
+      "Lucy",
+      "Oliver",
+      "Lily",
+      "Leo",
+      "Luna",
+      "Teddy",
+      "Ruby",
+      "Milo",
+      "Rosie",
+      "Duke",
+      "Sadie",
+      "Oscar",
+      "Chloe",
+    ];
+    return names[Math.floor(Math.random() * names.length)];
+  }
+
+  // Generate a random medical history
+  function generateMedicalHistory(name) {
+    const actions = [
+      "was born",
+      "had a check-up",
+      "received vaccinations",
+      "visited the vet",
+    ];
+    const date = new Date().toISOString().split("T")[0];
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    return `1. ${date}: ${name} ${action}`;
+  }
+
+  // Generate 100 pet objects
+
+  for (let i = 0; i < petsNumber; i++) {
+    const type = petTypes[Math.floor(Math.random() * petTypes.length)];
+    const name = generatePetName();
+    const dob = "2021-05-05";
+    const medicalHistory =
+      type === "other" ? undefined : generateMedicalHistory(name);
+
+    const pet = {
+      type,
+      name,
+      dob,
+      medicalHistory,
+    };
+
+    pets.push(pet);
+  }
+
+  pets.forEach((pet) => {
+    const data = {
+      ...pet,
+      date: new Date(),
+      id: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
+      folder: pet.petType,
+    };
+
+    const prevPetsList = JSON.parse(localStorage.getItem("pets")) ?? [];
+    const newPetsList = [...prevPetsList, data];
+    localStorage.setItem("pets", JSON.stringify(newPetsList));
+  });
 }
