@@ -10,6 +10,8 @@
         <meta name="msapplication-TileColor" content="#171311" tile-control>
         <meta name="msapplication-navbutton-color" content="#171311" tile-control>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title id="pageTitle">My pets Pro</title>
 
         <!-- ionic CDNs -->
@@ -49,6 +51,35 @@
                 </ion-content>
             </ion-modal>
 
+            <ion-modal index="1" class="pet-model" id="petModal">
+                <ion-header>
+                    <ion-toolbar class="modal-tool-bar">
+                        <ion-buttons slot="start">
+                            <ion-button index="0" id="cancelPetBtn" class="model-cancel">Cancel</ion-button>
+                        </ion-buttons>
+                        <ion-buttons slot="end">
+                            <ion-button id="confirmPetBtn" strong="true">Confirm</ion-button>
+                        </ion-buttons>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content class="pet-model">
+
+                    <span pet-date-added class="created-date-modal"></span>
+
+                    <div class="modal-pet-details">
+                        <ion-img pet-img src="assets/pet.png" alt="pet image" class="pet-img-modal"></ion-img>
+                        <div class="pet-content">
+                            <p pet-name class="pet-modal-text">name</p>
+                            <p pet-type class="pet-modal-text">type</p>
+                            <p pet-dob class="pet-modal-text">dob</p>
+                            <p pet-medical class="pet-modal-text">Medical history</p>
+                        </div>
+                    </div>
+                    <ion-button class="add-img" id="addImg">Add image</ion-button>
+                    <ion-button class="view-img" id="viewImg">View image</ion-button>
+                </ion-content>
+            </ion-modal>
+
             <ion-menu content-id="main-content" class="ion-menu">
 
                 <ion-content class="ion-padding | ion-menu">
@@ -65,26 +96,26 @@
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="sunny-outline" theme-toggle-icon></ion-icon>
-                                <ion-toggle checked="true" key="theme" theme-toggle>Dark
+                                <ion-toggle class="toggle" checked="true" key="theme" theme-toggle>Dark
                                     Theme</ion-toggle>
                             </div>
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="reader-outline" alert-toggle-icon></ion-icon>
-                                <ion-toggle checked="true" key="alert" alert-toggle>Alert</ion-toggle>
+                                <ion-toggle class="toggle" checked="true" key="alert" alert-toggle>Alert</ion-toggle>
                             </div>
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="notifications-outline"
                                     notifications-toggle-icon></ion-icon>
-                                <ion-toggle checked="true" key="notifications"
+                                <ion-toggle class="toggle" checked="true" key="notifications"
                                     notifications-toggle>Notifications</ion-toggle>
                             </div>
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="volume-high-outline"
                                     sound-toggle-icon></ion-icon>
-                                <ion-toggle checked="false" key="sound" sound-toggle>Sound</ion-toggle>
+                                <ion-toggle class="toggle" checked="false" key="sound" sound-toggle>Sound</ion-toggle>
                             </div>
 
                         </div>
@@ -133,6 +164,8 @@
                 </ion-content>
 
             </ion-menu>
+
+
 
             <ion-tabs>
 
@@ -184,7 +217,7 @@
                         <div class="content-container">
                             <ion-searchbar class="search-bar" autocomplete="on" placeholder="Search"></ion-searchbar>
                             <ion-list petsList="hidden" class="pet-list">
-                                <ion-reorder-group id="reorderContainer" disabled="false" class="pet-list">
+                                <ion-reorder-group id="reorderContainer" class="pet-list">
 
                                 </ion-reorder-group>
                             </ion-list>

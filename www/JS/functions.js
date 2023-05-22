@@ -256,50 +256,6 @@ export function setTheme(
   }
 }
 
-export function setUserPreference(togglesList) {
-  const userPreference = JSON.parse(localStorage.getItem("userPreference")) || {
-    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? true
-      : false,
-    notifications: true,
-    alert: true,
-    sound: false,
-  };
-  for (const [key, value] of Object.entries(userPreference)) {
-    updateUserPreference(key, value);
-    togglesList[key]?.setAttribute("checked", value);
-  }
-}
-
-export function updateUserPreference(key, value) {
-  const userPreferenceList = JSON.parse(
-    localStorage.getItem("userPreference")
-  ) ?? {
-    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? true
-      : false,
-    notifications: true,
-    alert: true,
-    sound: false,
-  };
-  switch (key) {
-    case "theme":
-      setTheme(value);
-      userPreferenceList.theme = value;
-      break;
-    case "notifications":
-      userPreferenceList.notifications = value;
-      break;
-    case "alert":
-      userPreferenceList.alert = value;
-      break;
-    case "sound":
-      userPreferenceList.sound = value;
-      break;
-  }
-  localStorage.setItem("userPreference", JSON.stringify(userPreferenceList));
-}
-
 /**
  * Set the pets list and order based on the stored data.
  * @param {Object} utils - An object containing utility elements for the function.
@@ -342,7 +298,7 @@ export async function setPets(utils) {
     pets.forEach((pet) => {
       // ? * --> create a pet item and set its attributes
       const petItem = document.createElement("ion-item-sliding");
-      petItem.className = "pet-item | search-item-elements";
+      petItem.className = "pet-item | search-item-elements | clickable";
       // ? * --> set the pet item name and type attributes for the search functionality
       petItem.setAttribute("name", pet.name);
       petItem.setAttribute("type", pet.type);
@@ -376,16 +332,21 @@ export async function setPets(utils) {
       `;
       petsCounter++;
       utils.orderContainer.appendChild(petItem);
+      petItem.addEventListener("pointerdown", () => showDetails(pet));
     });
-    // !!!!!!!!!
+    // ? * --> Enable the reorder functionality
+    if (petsCounter > 1 && utils.orderContainer)
+      utils.orderContainer.setAttribute("disabled", "false");
   } else {
     utils.list.setAttribute("petsList", "hidden");
     utils.notify.setAttribute("notifyLabel", "visible");
   }
-  if (pets) {
-    const deleteBtns = document.querySelectorAll(".delete-btn");
-    deleteBtns.forEach((btn) => {
-      btn.addEventListener("pointerdown", () => {
+  utils.counterLabel.innerText = petsCounter;
+  if (pets && pets.length > 0) {
+    const deleteButtons = document.querySelectorAll(".delete-button");
+    const editButtons = document.querySelectorAll(".edit-button");
+    deleteButtons.forEach((button) => {
+      button.addEventListener("pointerdown", () => {
         presentAlert("Confirm", "Delete", "do you want to delete pet!", [
           {
             text: "Delete",
@@ -399,8 +360,158 @@ export async function setPets(utils) {
         ]);
       });
     });
+    editButtons.forEach((button) => {
+      button.addEventListener("pointerdown", () => {
+        const pet = pets.find((pet) => pet.id === button.id);
+        editPet(pet);
+      });
+    });
   }
-  utils.counterLabel.innerText = petsCounter;
+}
+
+/**
+ * Sets the user preference based on the provided toggles list.
+ * Retrieves the user preference from local storage or sets default values.
+ * Updates the user preference and toggles the corresponding elements.
+ * @param {Object} togglesList - The list of toggles elements.
+ * @param {HTMLElement} togglesList.[key] - The toggle element should have key named as the preference list .
+ * @param {boolean} togglesList.[key].checked - The toggle element should have checked attribute.
+ * @returns {void} this function returns nothing. but it updates the user preference and toggles the corresponding elements.
+ */
+export function setUserPreference(togglesList) {
+  // ? * --> Get the user preference from local storage or set default values
+  const userPreference = JSON.parse(localStorage.getItem("userPreference")) || {
+    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? true
+      : false,
+    notifications: true,
+    alert: true,
+    sound: false,
+  };
+  // ? * --> Update the user preference and toggle the corresponding elements
+  for (const [key, value] of Object.entries(userPreference)) {
+    updateUserPreference(key, value);
+    togglesList[key]?.setAttribute("checked", value);
+  }
+}
+
+/**
+ * Updates the user preference based on the provided key and value.
+ * Retrieves the user preference list from local storage or sets default values.
+ * Updates the corresponding key in the user preference list and stores it in local storage.
+ * @param {string} key - The key representing the user preference.
+ * @param {any} value - The value of the user preference.
+ * @returns {void} this function returns nothing. but it updates the user preference `key` with `value` and stores it in local storage.
+ */
+export function updateUserPreference(key, value) {
+  // ? * --> Get the user preference list from local storage or set default values
+  const userPreferenceList = JSON.parse(
+    localStorage.getItem("userPreference")
+  ) ?? {
+    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? true
+      : false,
+    notifications: true,
+    alert: true,
+    sound: false,
+  };
+
+  // ? * --> Update the corresponding key in the user preference list and store it in local storage
+  switch (key) {
+    case "theme":
+      // ? * --> Set the theme based on the value
+      setTheme(value);
+      userPreferenceList.theme = value;
+      break;
+    case "notifications":
+      // ? * --> Set the notifications based on the value
+      // ! * --> Should be updated to handle the notifications
+      userPreferenceList.notifications = value;
+      break;
+    case "alert":
+      // ? * --> Set the alert based on the value
+      // ! * --> Should be updated to handle the alert
+      userPreferenceList.alert = value;
+      break;
+    case "sound":
+      // ? * --> Set the sound based on the value
+      // ! * --> Should be updated to handle the sound
+      userPreferenceList.sound = value;
+      break;
+  }
+
+  localStorage.setItem("userPreference", JSON.stringify(userPreferenceList));
+}
+
+/**
+ * Presents an alert to the user with the specified options.
+ *
+ * @param {string} [header="Alert"] - The header text for the alert. Default is "Alert".
+ * @param {string} [subheader=""] - The subheader text for the alert. Optional but null must be passed in to skip this parameter.
+ * @param {string} message - The main message text for the alert. Required.
+ * @param {string[]} [buttons=["OK"]] - An array of button labels for the alert. Default is a single "OK" button. optional but null must be passed in to skip this parameter.
+ * @param {object[]} [inputs=[]] - An array of input options for the alert. Each input option should be an object with properties like `type`, `name`, `placeholder`, etc. Optional but null must be passed in to skip this parameter.
+ * @returns {Promise<void>} A promise that resolves when the alert is dismissed.
+ */
+export async function presentAlert(
+  header = "Alert",
+  subheader = "",
+  message,
+  buttons = ["OK"],
+  inputs = []
+) {
+  const alert = document.createElement("ion-alert");
+  alert.style = `
+    --background: var(--background-color);
+    --backdrop-opacity: 0.8;
+  `;
+  alert.header = header;
+  alert.subHeader = subheader;
+  alert.message = message;
+  alert.buttons = buttons;
+  alert.inputs = inputs;
+
+  document.body.appendChild(alert);
+  await alert.present();
+}
+
+/**
+ * Resets the values of input fields and clears the date label in a form.
+ *
+ * @param {object} inputFields - An object containing the input fields to be reset. The object should have keys representing the input field names and values representing the input field elements.
+ * @returns {void}
+ */
+export function resetForm(inputFields) {
+  Object.values(inputFields).forEach((value) => {
+    value.value = "";
+  });
+  const dateLabel = document.querySelector("[date]");
+  dateLabel.textContent = "Date of birth";
+}
+
+// ! * --> Need to update the function to handle the edit functionality
+export function editPet(pet) {}
+
+export function showDetails(pet) {
+  console.log("clicked");
+  const modal = document.querySelector("#petModal");
+  modal.querySelector("[pet-img]").src = `assets/${
+    pet.type.toLowerCase() === "other" ? "logo" : pet.type
+  }.png`;
+  modal.querySelector("[pet-img]").alt = `${pet.type} avatar image`;
+  modal.querySelector("[pet-name]").innerText = pet.name;
+  modal.querySelector("[pet-type]").innerText = pet.type;
+  modal.querySelector("[pet-dob]").innerText = pet.dob;
+  modal.querySelector("[pet-medical]").innerText = pet.medicalHistory;
+  modal.querySelector("[pet-date-added]").innerText = pet.date;
+  modal.present();
+}
+export function updateOrder(orderContainer, pets) {
+  pets = pets || [];
+  // ? * --> get the current order
+  const order = [...orderContainer.children].map((item) => item.id);
+  // ? * --> store the new order in local storage
+  localStorage.setItem("order", JSON.stringify([...order, ...pets]));
 }
 
 export function generateFakePets(petsNumber) {
@@ -485,8 +596,14 @@ export function generateFakePets(petsNumber) {
     };
 
     const prevPetsList = JSON.parse(localStorage.getItem("pets")) ?? [];
+    const prevOrderList = JSON.parse(localStorage.getItem("order")) ?? [];
     const newPetsList = [...prevPetsList, data];
     localStorage.setItem("pets", JSON.stringify(newPetsList));
+    if (prevOrderList.length > 0)
+      localStorage.setItem(
+        "order",
+        JSON.stringify([...prevOrderList, data.id])
+      );
   });
 }
 
@@ -511,28 +628,9 @@ export function handleClear() {
   });
 }
 
-export function confirm(modal) {
+export function confirmModal(modal) {
   const input = document.querySelector("ion-input");
   modal.dismiss(input.value, "confirm");
-}
-
-export function resetForm(inputFields) {
-  for (const [key, value] of Object.entries(inputFields)) {
-    value.value = "";
-  }
-  const dateLabel = document.querySelector("[date]");
-  dateLabel.textContent = "Date of birth";
-}
-
-export async function presentAlert(header, subheader, message, buttons) {
-  const alert = document.createElement("ion-alert");
-  alert.header = header ?? "Alert";
-  alert.subHeader = subheader ?? "";
-  alert.message = message;
-  alert.buttons = buttons ?? ["OK"];
-
-  document.body.appendChild(alert);
-  await alert.present();
 }
 
 export async function handleSubmit(data, exception, utils, inputFields) {

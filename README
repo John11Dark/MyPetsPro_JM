@@ -1,32 +1,28 @@
-1. Extra functionality
-2. Network Plugin
-3. Deployment
-
-4. Capture one or more pictures of your pet
+4. Capture one or more images for a pet and add it to an existing pet
+   a. The Cordova camera (cordova-plugin-camera) plugin needs to be used to capture an image of the pet.
+   b. The image should be saved and linked to the pet
+   c. The users should be able to add multiple images. HINT: You might want to save the images of a particular pet in an array (in the localStorage).
+   d. When the ‘view image’ button/icon is clicked, you are expected to show the captured pet image(s) in a modal.
+   c. Capture one or more pictures of your pet
    • Modal – to show captured pet image(s) (ion-modal)
    a. Each pet should have two additional icons/buttons:
    i. Add Image: See feature no. 6) ii. View Image(s): See feature no. 6)
 
-Reordering Pets
-fix order when single pet is deleted
-
-Capture one or more images for a pet and add it to an existing pet
-a. The Cordova camera (cordova-plugin-camera) plugin needs to be used to capture an image of the pet.
-b. The image should be saved and linked to the pet
-c. The users should be able to add multiple images. HINT: You might want to save the images of a particular pet in an array (in the localStorage).
-d. When the ‘view image’ button/icon is clicked, you are expected to show the captured pet image(s) in a modal.
-
-8. Extra functionality
+5. Extra functionality
    a. In this task you are expected to implement and document an extra functionality.
    b. The extra functionality should:
    i. Be original. That is: it should not be similar to functionalities covered during the lectures
-   ii. Make use of an extra Cordova plugin which is not already utilised in your project iii. Improve the utility of the current application (functionality not related to the scenario will not be considered)
-   c. Document this functionality in a Word Document, supported by a brief description as well as a minimum of 3 screenshots. (see Section 2, Task 3) 9) Network Plugin
+   ii. Make use of an extra Cordova plugin which is not already utilised in your project
+   iii. Improve the utility of the current application (functionality not related to the scenario will not be considered)
+   c. Document this functionality in a Word Document, supported by a brief description as well as a minimum of 3 screenshots.
+
+6. Network Plugin
    a. Install the Cordova Network plugin to your application in order to detect changes in the user's network connectivity.
    b. Display a warning message whenever the device is no longer connected to the internet.
    c. Automatically dismiss the warning message once the internet connection is restored.
    d. Test the implementation in different scenarios, such as turning on/off airplane mode or switching between WiFi and mobile data.
-9. Deploying your Cordova project
+
+7. Deploying your Cordova project
    a. In this task you are expected to design a logo for your app using your preferred tool(s).
    b. Configure your project’s config.xml to change the logo from Cordova’s default to your newly designed logo. Note that you need to design your logo to cover different screen densities. See https://cordova.apache.org/docs/en/latest/config_ref/images.html for more information.
    c. Build your Cordova project to an Android application to extract the APK file.

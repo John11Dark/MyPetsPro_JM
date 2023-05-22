@@ -10,6 +10,7 @@ import {
   setUserPreference,
   updateUserPreference,
   getPets,
+  updateOrder,
 } from "./functions.js";
 
 // ? * --> DOM Elements
@@ -71,7 +72,7 @@ setUserPreference(preferenceToggles);
 
 //  * --> Set Pets
 
-petsList && (await setPets(utils));
+petsList && setPets(utils);
 
 // ? * --> Event Listeners
 
@@ -142,7 +143,7 @@ deletePets?.addEventListener("pointerdown", async () => {
           handler: () => {
             localStorage.removeItem("pets");
             localStorage.removeItem("order");
-            petsList.innerHTML = "";
+            orderContainer.innerHTML = "";
             feedList.innerHTML = "";
             petsCounterLabel.textContent = "0";
           },
@@ -154,7 +155,7 @@ deletePets?.addEventListener("pointerdown", async () => {
 generatePets?.addEventListener("pointerdown", () => {
   presentAlert(
     "Generate Fake Pets",
-    "Are you sure you want to generate 15 fake pets?",
+    "enter number of pets to be generated!",
     null,
     [
       {
@@ -164,10 +165,20 @@ generatePets?.addEventListener("pointerdown", () => {
       {
         text: "Generate",
         role: "confirm",
-        handler: () => {
-          generateFakePets(15);
+        handler: async (alertData) => {
+          const value = parseInt(alertData.number);
+          generateFakePets(value);
           setPets(utils);
         },
+      },
+    ],
+    [
+      {
+        name: "number",
+        type: "number",
+        placeholder: "number",
+        min: 1,
+        max: 100,
       },
     ]
   );
@@ -219,27 +230,8 @@ searchbar?.addEventListener("ionInput", handleSearchInput);
 searchbar?.addEventListener("ionCancel", handleClear);
 searchbar?.addEventListener("ionClear", handleClear);
 
-// orderContainer.addEventListener("ionItemReorder", (event) => {
-//   // ? * --> Save the new order
-//   event.detail.complete();
-//   // ? * --> Get the item id
-//   const petIds = Array.from(orderContainer.children).map((item) => item.id);
-
-//   // ? * --> Get the old order
-//   const oldOrder = JSON.parse(localStorage.getItem("order")) || [];
-
-//   // ? * --> filter out the pet ids that are not in the new order
-//   const newOrder = oldOrder.filter((id) => !petIds.includes(id));
-//   // ? * --> Save the new order
-//   localStorage.setItem("order", JSON.stringify([...newOrder, ...petIds]));
-// });
-
 orderContainer.addEventListener("ionItemReorder", (event) => {
   // ? * --> Save the new order
   event.detail.complete();
-
-  // ? * --> Get the item id and store it in an array
-  const order = [...orderContainer.children].map((item) => item.id);
-  // ? * --> store the new order in local storage
-  localStorage.setItem("order", JSON.stringify(order));
+  updateOrder(orderContainer);
 });
