@@ -7,7 +7,6 @@
   /* * Colors  */
   --primary-color: #a25b32;
   --primary: var(--primary-color) !important;
-
   --paragraph-color: #b2a197;
   --primary-color-opacity-100: hsla(34, 80%, 59%, 0.227);
   --secondary-color: #415361;
@@ -109,20 +108,13 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --primary-color-dark: #11100e;
-    --tab-background-color: #11100e;
-
     --primary-color-light: #e8d9b8;
-
     --background-color: #171311;
-    --surface-light: #e5dfc6;
     --surface-gray: #b4b3b1;
-    --surface-grayish: #f1f1f1;
-    --surface-dark: #928c86;
+    --surface-grayish: #555147;
     --theme-shadow: #b9b5ab8a;
-    --opacity-dark-100: #11100ed7;
-    --opacity-dark-300: #0e0b0ae5;
-    --opacity-light-100: #ffffff26;
-    --input-background-color: #353434b7;
+    --input-background-color: #5a3a27d3;
+    --tab-background-color: #11100edc;
   }
 }
 
@@ -130,16 +122,13 @@
 @media (prefers-color-scheme: light) {
   :root {
     --primary-color-dark: #e8d9b8;
-    --tab-background-color: #d4c39d;
     --primary-color-light: #11100e;
-    --opacity-dark-100: #11100ed7;
-    --opacity-light-100: #141212c4;
     --background-color: #e8d9b8;
-    --theme-shadow: #b9b5ab8a;
-    --surface-light: #c9c2a6;
     --surface-gray: #b4b3b1;
-    --surface-grayish: #f1f1f1;
-    --surface-dark: #928c86;
+    --surface-grayish: #eee5d1de;
+    --theme-shadow: #1f1c16d2;
+    --input-background-color: #8a6752bb;
+    --tab-background-color: #d4c39d;
   }
 }
 
@@ -189,6 +178,15 @@ body {
   /* transition: all 0.2s ease; */
 }
 
+.clickable {
+  pointer-events: all;
+  cursor: pointer;
+  transition: var(--transition-5ms-Ease);
+}
+.clickable:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
 .flex {
   display: flex;
   align-items: center;
@@ -302,12 +300,13 @@ body {
 .toggle-container,
 .menu-button-item {
   background-color: var(--surface-grayish);
+  color: var(--paragraph-color);
+
   width: 90%;
   height: 50px;
   margin-left: 2em;
   padding: var(--spacing-200);
   border-radius: var(--radius-100);
-  color: var(--primary-color-dark);
   display: flex;
   place-content: start;
   place-items: center;
@@ -315,16 +314,6 @@ body {
   gap: var(--spacing-200);
   text-transform: capitalize;
 }
-
-/* .menu-button-item {
-  --color: var(--primary-color-dark);
-  --background: var(--surface-grayish);
-  width: 245px;
-  height: 50px;
-  --padding: var(--spacing-200);
-  font-size: 16px;
-  margin-left: 2em;
-} */
 
 .ion-menu-icon {
   color: var(--primary-color);
@@ -509,6 +498,7 @@ body {
 }
 .ion-input {
   background-color: var(--surface-grayish);
+  --background: var(--surface-grayish);
   --padding-start: 12px;
   border-radius: var(--radius-100);
   height: 50px;

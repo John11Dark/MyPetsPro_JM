@@ -1,14 +1,52 @@
-g. Add icons/buttons for adding and viewing pet images.
+1. Extra functionality
+2. Network Plugin
+3. Deployment
 
-i. Create the "About" screen with the app's icon, description, and your name.
-Additional tasks:
+4. Capture one or more pictures of your pet
+   • Modal – to show captured pet image(s) (ion-modal)
+   a. Each pet should have two additional icons/buttons:
+   i. Add Image: See feature no. 6) ii. View Image(s): See feature no. 6)
 
-Enable reordering of pets using <ion-reorder> and save the order in the localStorage.
-Utilize the Cordova camera plugin (cordova-plugin-camera) to capture and link images to pets.
-Implement a light/dark theme toggle in the app's toolbar.
+Reordering Pets
+fix order when single pet is deleted
 
-Add an extra functionality that is original, utilizes an additional Cordova plugin, and improves the app's utility.
+Capture one or more images for a pet and add it to an existing pet
+a. The Cordova camera (cordova-plugin-camera) plugin needs to be used to capture an image of the pet.
+b. The image should be saved and linked to the pet
+c. The users should be able to add multiple images. HINT: You might want to save the images of a particular pet in an array (in the localStorage).
+d. When the ‘view image’ button/icon is clicked, you are expected to show the captured pet image(s) in a modal.
 
-Install the Cordova Network plugin to detect changes in network connectivity and show warning messages.
+8. Extra functionality
+   a. In this task you are expected to implement and document an extra functionality.
+   b. The extra functionality should:
+   i. Be original. That is: it should not be similar to functionalities covered during the lectures
+   ii. Make use of an extra Cordova plugin which is not already utilised in your project iii. Improve the utility of the current application (functionality not related to the scenario will not be considered)
+   c. Document this functionality in a Word Document, supported by a brief description as well as a minimum of 3 screenshots. (see Section 2, Task 3) 9) Network Plugin
+   a. Install the Cordova Network plugin to your application in order to detect changes in the user's network connectivity.
+   b. Display a warning message whenever the device is no longer connected to the internet.
+   c. Automatically dismiss the warning message once the internet connection is restored.
+   d. Test the implementation in different scenarios, such as turning on/off airplane mode or switching between WiFi and mobile data.
+9. Deploying your Cordova project
+   a. In this task you are expected to design a logo for your app using your preferred tool(s).
+   b. Configure your project’s config.xml to change the logo from Cordova’s default to your newly designed logo. Note that you need to design your logo to cover different screen densities. See https://cordova.apache.org/docs/en/latest/config_ref/images.html for more information.
+   c. Build your Cordova project to an Android application to extract the APK file.
+   d. Test this APK file on your Android phone/Emulator.
 
-Configure the app's logo in config.xml and build the Cordova project to an Android APK file for testing.
+SECTION 2 – Documentation
+For this section you are expected to create a Word Document that includes:
+• Front page (not cover sheet) with your name, surname and icon designed
+• Table of contents
+• A section for every Task
+Task 1: Briefly describe 2 hybrid mobile application development tools/platforms apart from IONIC.
+Task 2: Outline at least 2 advantages and 2 disadvantages of Native mobile development.
+Task 3: Application: Extra functionality (refer to Section 1, point number 8, c)
+You need to answer these questions in your own words (not in ChatGPT’s $%"#). You are encouraged to be as concise and clear as possible – we are after quality not quantity. This document should be named as follows: YourACTUALFullName_YourClassName.docx (or .doc).
+Section 3 – Short Video
+As part of your final delivery of MyPets Pro, the agency would like you to create a short video showing code snippets of your application and explaining key parts of the code. The video should not be longer than 5 minutes and should focus on the most important and interesting parts of your code. This is a great opportunity to showcase your coding skills and demonstrate your understanding of the project. Remember to be clear and concise in your explanations and to highlight any particularly innovative or challenging aspects of your code. For this task you are encouraged to use OBS Studio and you should record both your screen and your voice (please discuss options with your lecturer if you cannot record your voice).
+
+To submit the project, create a folder matching this template YourActualFullName*YourClassName (ex: JoeBorg_SWD42A) and place the following items inside it:
+• The Cordova project folder (MyPetsPro*[Your Initials])
+• Your Word Document (see Section 2)
+• The APK file for your built Cordova project
+• Your short video (see Section 3)
+Finally, compress the whole folder containing the above (YourActualFullName_YourClassName.zip) and upload to VLE before the deadline.

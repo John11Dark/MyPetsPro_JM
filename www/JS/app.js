@@ -1,3 +1,18 @@
+// ? * --> Imports
+import {
+  handleClear,
+  handleSubmit,
+  handleSearchInput,
+  setPets,
+  presentAlert,
+  resetForm,
+  generateFakePets,
+  setUserPreference,
+  updateUserPreference,
+  getPets,
+} from "./functions.js";
+
+// ? * --> DOM Elements
 const addButton = document.querySelector("#btn-add-pet");
 const clearButton = document.querySelector("#btn-clear-form");
 const petName = document.querySelector("#pet-name");
@@ -17,16 +32,18 @@ const petMedHisReadMore = document.querySelector("[medicalHistoryLabel]");
 const platformLabel = document.querySelector("[platform]");
 const searchbar = document.querySelector("ion-searchbar");
 const feedList = document.querySelector("[feedList]");
+// ? * --> Menu Buttons
+// ? * --> Switches (toggles)
+const themeToggle = document.querySelector("[theme-toggle]");
+const alertToggle = document.querySelector("[alert-toggle]");
+const notificationsToggle = document.querySelector("[notifications-toggle]");
+const soundToggle = document.querySelector("[sound-toggle]");
 
-import {
-  handleClear,
-  handleSubmit,
-  handleSearchInput,
-  setPets,
-  presentAlert,
-  resetForm,
-  generateFakePets,
-} from "./functions.js";
+const deletePets = document.querySelector("[delete-btn]");
+const generatePets = document.querySelector("[generate-btn]");
+const orderContainer = document.querySelector("#reorderContainer");
+
+// ? * --> Variables
 
 const utils = {
   tab: petsListTab,
@@ -34,16 +51,26 @@ const utils = {
   feedList,
   notify,
   counterLabel: petsCounterLabel,
+  orderContainer,
+};
+
+const preferenceToggles = {
+  theme: themeToggle,
+  notifications: notificationsToggle,
+  alert: alertToggle,
+  sound: soundToggle,
 };
 
 // ? * --> Doc Setup
 
-// ? * --> Set Platform
+//  * --> Set user preference
+setUserPreference(preferenceToggles);
+
+//  * --> Set Platform
 // platformLabel?.textContent = `For ${window.cordova.platformId}`;
 
-// ? * --> Set Pets
-// localStorage.clear();
-// generateFakePets(10);
+//  * --> Set Pets
+
 petsList && (await setPets(utils));
 
 // ? * --> Event Listeners
@@ -51,6 +78,14 @@ petsList && (await setPets(utils));
 // ? * --> pointerdown event is used instead of click event
 // * 1 to be compatible on mobile devices
 // * 2 to avoid 300ms delay on mobile devices
+
+for (const object in preferenceToggles) {
+  const toggle = preferenceToggles[object];
+  toggle.addEventListener("pointerdown", () => {
+    updateUserPreference(toggle.getAttribute("key"), !toggle.checked);
+  });
+}
+
 addButton?.addEventListener("pointerdown", () => {
   const data = {
     name: petName.value,
@@ -88,6 +123,54 @@ clearButton?.addEventListener("pointerdown", () => {
         },
       ]
     );
+});
+
+deletePets?.addEventListener("pointerdown", async () => {
+  let pets = await getPets("pets");
+  pets.length > 0 &&
+    presentAlert(
+      "Delete All Pets",
+      "Are you sure you want to delete all pets?",
+      null,
+      [
+        {
+          text: "Cancel",
+          role: "cancel",
+        },
+        {
+          text: "Delete",
+          handler: () => {
+            localStorage.removeItem("pets");
+            localStorage.removeItem("order");
+            petsList.innerHTML = "";
+            feedList.innerHTML = "";
+            petsCounterLabel.textContent = "0";
+          },
+        },
+      ]
+    );
+});
+
+generatePets?.addEventListener("pointerdown", () => {
+  presentAlert(
+    "Generate Fake Pets",
+    "Are you sure you want to generate 15 fake pets?",
+    null,
+    [
+      {
+        text: "Cancel",
+        role: "cancel",
+      },
+      {
+        text: "Generate",
+        role: "confirm",
+        handler: () => {
+          generateFakePets(15);
+          setPets(utils);
+        },
+      },
+    ]
+  );
 });
 
 confirmDate?.addEventListener("pointerdown", () => {
@@ -135,3 +218,28 @@ modelCancelBtns?.forEach((btn) => {
 searchbar?.addEventListener("ionInput", handleSearchInput);
 searchbar?.addEventListener("ionCancel", handleClear);
 searchbar?.addEventListener("ionClear", handleClear);
+
+// orderContainer.addEventListener("ionItemReorder", (event) => {
+//   // ? * --> Save the new order
+//   event.detail.complete();
+//   // ? * --> Get the item id
+//   const petIds = Array.from(orderContainer.children).map((item) => item.id);
+
+//   // ? * --> Get the old order
+//   const oldOrder = JSON.parse(localStorage.getItem("order")) || [];
+
+//   // ? * --> filter out the pet ids that are not in the new order
+//   const newOrder = oldOrder.filter((id) => !petIds.includes(id));
+//   // ? * --> Save the new order
+//   localStorage.setItem("order", JSON.stringify([...newOrder, ...petIds]));
+// });
+
+orderContainer.addEventListener("ionItemReorder", (event) => {
+  // ? * --> Save the new order
+  event.detail.complete();
+
+  // ? * --> Get the item id and store it in an array
+  const order = [...orderContainer.children].map((item) => item.id);
+  // ? * --> store the new order in local storage
+  localStorage.setItem("order", JSON.stringify(order));
+});

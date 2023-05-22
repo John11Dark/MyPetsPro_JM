@@ -3,11 +3,13 @@
 
     <head>
         <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
-        <meta charset="utf-8">
-        <meta name="format-detection" content="telephone=no">
-        <meta name="msapplication-tap-highlight" content="no">
-        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-        <meta name="color-scheme" content="light dark">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="color-scheme" content="dark light" />
+        <meta name="theme-color" content="#171311" tile-control>
+        <meta name="msapplication-TileColor" content="#171311" tile-control>
+        <meta name="msapplication-navbutton-color" content="#171311" tile-control>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title id="pageTitle">My pets Pro</title>
 
         <!-- ionic CDNs -->
@@ -25,30 +27,6 @@
     <body>
 
         <ion-app>
-
-
-            <ion-modal index="0" trigger="open-language-model">
-                <ion-header>
-                    <ion-toolbar>
-                        <ion-buttons slot="start">
-                            <ion-button index="0" id="cancelDateBtn" class="model-cancel">Cancel</ion-button>
-                        </ion-buttons>
-                        <ion-buttons slot="end">
-                            <ion-button id="confirmDateBtn" strong="true">Confirm</ion-button>
-                        </ion-buttons>
-                    </ion-toolbar>
-                </ion-header>
-                <ion-content class="ion-padding">
-
-
-                    <ion-label>
-                        <p>Select date of adoption or date of birth</p>
-                    </ion-label>
-
-                    <ion-datetime name="dob" class="date-picker" id="pet-date-of-birth" />
-                </ion-content>
-            </ion-modal>
-
             <ion-modal index="0" trigger="open-date-model">
                 <ion-header>
                     <ion-toolbar>
@@ -87,24 +65,26 @@
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="sunny-outline" theme-toggle-icon></ion-icon>
-                                <ion-toggle checked="true" theme-toggle>Dark Them</ion-toggle>
+                                <ion-toggle checked="true" key="theme" theme-toggle>Dark
+                                    Theme</ion-toggle>
                             </div>
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="reader-outline" alert-toggle-icon></ion-icon>
-                                <ion-toggle checked="true" alert-toggle>Alert</ion-toggle>
+                                <ion-toggle checked="true" key="alert" alert-toggle>Alert</ion-toggle>
                             </div>
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="notifications-outline"
-                                    notifications-toggle-menu></ion-icon>
-                                <ion-toggle checked="false" notifications-toggle>Notifications</ion-toggle>
+                                    notifications-toggle-icon></ion-icon>
+                                <ion-toggle checked="true" key="notifications"
+                                    notifications-toggle>Notifications</ion-toggle>
                             </div>
 
                             <div class="toggle-container | flex">
                                 <ion-icon class="ion-toggle-icon" name="volume-high-outline"
                                     sound-toggle-icon></ion-icon>
-                                <ion-toggle checked="false" sound-toggle>Sound</ion-toggle>
+                                <ion-toggle checked="false" key="sound" sound-toggle>Sound</ion-toggle>
                             </div>
 
                         </div>
@@ -116,28 +96,28 @@
                                 <span> settings</span>
                             </div>
 
-                            <div class="menu-button-item | delete">
+                            <div class="menu-button-item | delete | clickable" delete-btn>
                                 <ion-icon name="trash" class="ion-menu-icon | button"></ion-icon>
                                 <span>
                                     delete all pets
                                 </span>
                             </div>
 
-                            <div class="menu-button-item | generate">
+                            <div class="menu-button-item | generate | clickable" generate-btn>
                                 <ion-icon name="newspaper-outline" class="ion-menu-icon | button"></ion-icon>
                                 <span>
                                     Add dummy pets
                                 </span>
                             </div>
 
-                            <div class="menu-button-item | language" trigger="open-language-model">
+                            <div class="menu-button-item | language | clickable" trigger="open-language-model">
                                 <ion-icon name="text-outline" class="ion-menu-icon | button"></ion-icon>
                                 <span>
                                     language
                                 </span>
                             </div>
 
-                            <div class="menu-button-item | log-out">
+                            <div class="menu-button-item | log-out | clickable">
                                 <ion-icon name="log-out-outline" class="ion-menu-icon | button"></ion-icon>
                                 <span>
                                     Logout
@@ -203,8 +183,10 @@
                     <ion-content class="content" id="main-content">
                         <div class="content-container">
                             <ion-searchbar class="search-bar" autocomplete="on" placeholder="Search"></ion-searchbar>
-                            <ion-list petsList="hidden" class="pet-list | list">
+                            <ion-list petsList="hidden" class="pet-list">
+                                <ion-reorder-group id="reorderContainer" disabled="false" class="pet-list">
 
+                                </ion-reorder-group>
                             </ion-list>
                         </div>
                     </ion-content>
