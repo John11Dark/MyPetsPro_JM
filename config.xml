@@ -2,9 +2,11 @@
 <widget id="eu.johnmuller.mypetspro_jm" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>MyPetsPro_JM</name>
     <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
+    <author email="info@johnmuller.eu" href="https://johnmuller.eu">
+        John Muller
     </author>
+<icon src="www/assets/logo.png" platform="android" density="ldpi" />
+   
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />

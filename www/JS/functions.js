@@ -314,7 +314,7 @@ export async function setPets(utils) {
         <ion-item-option color="medium" class="edit-button" id="${pet.id}">
           <ion-icon slot="icon-only" name="create-outline"></ion-icon>
         </ion-item-option>
-        <ion-item-option color="primry" class="view-button" id="${pet.id}">
+        <ion-item-option color="primary" class="view-button" id="${pet.id}">
         <ion-icon name="eye-outline"></ion-icon>
         </ion-item-option>
       </ion-item-options>
@@ -679,4 +679,101 @@ export async function handleSubmit(data, exception, utils, inputFields) {
       },
     },
   ]);
+}
+
+/**
+ * This function shows a notify alert that can disappear after a certain duration
+ * @param {string} message To display in the alert
+ * @param {string} color background color of the alert
+ * @param {number} duration duration of the alert
+ * @param {string} position position of the alert
+ * @returns {void} returns nothing, just displays the alert
+ */
+export function Notify(message, color, duration, position, id) {
+  const toast = document.createElement("ion-toast");
+  if (id) toast.id = id;
+  toast.message = message;
+  if (duration) toast.duration = duration;
+  toast.color = color;
+  toast.position = position;
+  document.body.appendChild(toast);
+  toast.present();
+  return toast;
+}
+
+/**
+ *
+ * @param {string} type how to get an image from the device only capture or from gallery
+ * @returns {string} returns the path of the image
+ */
+export async function getImage(type, petId) {
+  const cameraSuccess = (imageData) => {
+    return saveImage(imageData, petId);
+  };
+
+  const cameraError = (error) => {
+    presentAlert(`${type} Error`, null, error);
+  };
+
+  const galleryOptions = {
+    quality: 100,
+    allowEditing: false,
+    saveToGallery: true,
+    sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY,
+    destinationType: navigator.camera.DestinationType.DATA_URL,
+  };
+
+  const cameraOptions = {
+    quality: 100,
+    allowEditing: false,
+    saveToGallery: true,
+    sourceType: navigator.camera.PictureSourceType.CAMERA,
+    destinationType: navigator.camera.DestinationType.DATA_URL,
+  };
+
+  switch (type) {
+    case "camera":
+      return navigator.camera.getPicture(
+        cameraSuccess,
+        cameraError,
+        cameraOptions
+      );
+    case "gallery":
+      return navigator.camera.getPicture(
+        cameraSuccess,
+        cameraError,
+        galleryOptions
+      );
+    default:
+      throw new Error(
+        `Invalid type ${type}. Only 'camera' or 'gallery' are allowed.`
+      );
+  }
+}
+
+export async function saveImage(imageData, petId) {
+  const fileName = `${petId}_${new Date().getTime()}.jpg`;
+
+  try {
+    const base64Data = btoa(imageData);
+    const filePath = await File.writeFile(
+      File.dataDirectory,
+      fileName,
+      base64Data,
+      { replace: true }
+    );
+    const imageURL = filePath.toURL();
+    return imageURL;
+  } catch (error) {
+    throw new Error(`Failed to save image: ${error.message}`);
+  }
+}
+
+export async function networkStatus(online) {
+  if (online) {
+    document.getElementById("#offline")?.remove();
+    Notify("Back online", "success", 2000, "bottom", "#online");
+    return;
+  }
+  Notify("You are offline", "danger", null, "bottom", "#offline");
 }

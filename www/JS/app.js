@@ -11,6 +11,8 @@ import {
   updateUserPreference,
   getPets,
   updateOrder,
+  networkStatus,
+  getImage,
 } from "./functions.js";
 
 // ? * --> DOM Elements
@@ -64,8 +66,10 @@ const preferenceToggles = {
 
 // ? * --> Doc Setup
 
+console.log("not ready");
 document.addEventListener("deviceready", onDeviceReady, false);
-console.log("firstRun");
+console.log("ready");
+const imgBtn = document.querySelector("#imgBtn");
 
 function onDeviceReady() {
   //  * --> Set user preference
@@ -237,4 +241,11 @@ function onDeviceReady() {
     event.detail.complete();
     updateOrder(orderContainer);
   });
+  imgBtn?.addEventListener("pointerdown", async () => {
+    document.querySelector("#img").src = await getImage("gallery");
+  });
+
+  // ? * --> Network Events
+  document.addEventListener("offline", networkStatus(false), false);
+  document.addEventListener("online", networkStatus(true), false);
 }
