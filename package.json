@@ -1,31 +1,24 @@
 {
-  "name": "eu.johnmuler.mypetspro_jm",
+  "name": "eu.johnmuller.mypetspro_jm",
   "displayName": "MyPetsPro_JM",
   "version": "1.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "engines": {
-    "cordova": "^10.0.0"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "John Muller",
+  "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@capacitor/cli": "5.0.3",
     "cordova-android": "^10.1.2",
     "cordova-browser": "^6.0.0",
     "cordova-plugin-camera": "^6.0.0",
     "cordova-plugin-device": "^2.1.0",
-    "cordova-plugin-geolocation": "^4.1.0"
+    "cordova-plugin-file": "^7.0.0",
+    "cordova-plugin-network-information": "^3.0.0"
   },
   "cordova": {
     "platforms": [
@@ -33,21 +26,17 @@
       "browser"
     ],
     "plugins": {
+      "cordova-plugin-device": {},
       "cordova-plugin-camera": {
         "ANDROIDX_CORE_VERSION": "1.6.+"
       },
-      "cordova-plugin-geolocation": {
-        "GPS_REQUIRED": "true"
+      "cordova-plugin-network-information": {
+        "ANDROIDX_CORE_VERSION": "1.6.+"
       },
-      "cordova-plugin-device": {}
+      "cordova-plugin-file": {
+        "ANDROIDX_CORE_VERSION": "1.6.+",
+        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
+      }
     }
-  },
-  "dependencies": {
-    "@capacitor/app": "5.0.2",
-    "@capacitor/core": "5.0.3",
-    "@capacitor/haptics": "5.0.2",
-    "@capacitor/keyboard": "5.0.2",
-    "@capacitor/status-bar": "5.0.2",
-    "cordova-plugin-network-information": "3.0.0"
   }
 }

@@ -269,6 +269,10 @@ export function setTheme(
 export async function setPets(utils) {
   // ? * --> declare a counter to count the number of pets
   let petsCounter = 0;
+  // ? * --> clear the pets inner HTML list
+  utils.orderContainer.innerHTML = "";
+  // ? * --> clear the feeds inner HTML list
+  utils.feedList.innerHTML = "";
 
   // ? * --> Get the pets from local storage
   let pets = await getPets("pets");
@@ -288,8 +292,6 @@ export async function setPets(utils) {
 
     // ? * --> Enable the "Pets List" tab
     utils.tab.removeAttribute("disabled");
-    // ? * --> clear the pets inner HTML list
-    utils.orderContainer.innerHTML = "";
     // ? * --> Set the pets list to visible
     utils.list.setAttribute("petsList", "visible");
     // ? * --> Hide the notification label
@@ -312,6 +314,9 @@ export async function setPets(utils) {
         <ion-item-option color="medium" class="edit-button" id="${pet.id}">
           <ion-icon slot="icon-only" name="create-outline"></ion-icon>
         </ion-item-option>
+        <ion-item-option color="primry" class="view-button" id="${pet.id}">
+        <ion-icon name="eye-outline"></ion-icon>
+        </ion-item-option>
       </ion-item-options>
       <ion-item class="pet-item">
         <div class="list-feed-card-container">
@@ -332,7 +337,6 @@ export async function setPets(utils) {
       `;
       petsCounter++;
       utils.orderContainer.appendChild(petItem);
-      petItem.addEventListener("pointerdown", () => showDetails(pet));
     });
     // ? * --> Enable the reorder functionality
     if (petsCounter > 1 && utils.orderContainer)
@@ -345,6 +349,7 @@ export async function setPets(utils) {
   if (pets && pets.length > 0) {
     const deleteButtons = document.querySelectorAll(".delete-button");
     const editButtons = document.querySelectorAll(".edit-button");
+    const viewButtons = document.querySelectorAll(".view-button");
     deleteButtons.forEach((button) => {
       button.addEventListener("pointerdown", () => {
         presentAlert("Confirm", "Delete", "do you want to delete pet!", [
@@ -364,6 +369,12 @@ export async function setPets(utils) {
       button.addEventListener("pointerdown", () => {
         const pet = pets.find((pet) => pet.id === button.id);
         editPet(pet);
+      });
+    });
+    viewButtons.forEach((button) => {
+      button.addEventListener("pointerdown", () => {
+        const pet = pets.find((pet) => pet.id === button.id);
+        showDetails(pet);
       });
     });
   }
@@ -505,6 +516,9 @@ export function showDetails(pet) {
   modal.querySelector("[pet-medical]").innerText = pet.medicalHistory;
   modal.querySelector("[pet-date-added]").innerText = pet.date;
   modal.present();
+  modal.querySelector(".model-cancel").addEventListener("pointerdown", () => {
+    modal.dismiss();
+  });
 }
 export function updateOrder(orderContainer, pets) {
   pets = pets || [];

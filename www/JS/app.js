@@ -64,52 +64,100 @@ const preferenceToggles = {
 
 // ? * --> Doc Setup
 
-//  * --> Set user preference
-setUserPreference(preferenceToggles);
+document.addEventListener("deviceready", onDeviceReady, false);
+console.log("firstRun");
 
-//  * --> Set Platform
-// platformLabel?.textContent = `For ${window.cordova.platformId}`;
+function onDeviceReady() {
+  //  * --> Set user preference
+  setUserPreference(preferenceToggles);
 
-//  * --> Set Pets
+  //  * --> Set Platform
+  platformLabel.textContent = `For ${window.cordova.platformId}`;
 
-petsList && setPets(utils);
+  //  * --> Set Pets
 
-// ? * --> Event Listeners
+  petsList && setPets(utils);
 
-// ? * --> pointerdown event is used instead of click event
-// * 1 to be compatible on mobile devices
-// * 2 to avoid 300ms delay on mobile devices
+  // ? * --> Event Listeners
 
-for (const object in preferenceToggles) {
-  const toggle = preferenceToggles[object];
-  toggle.addEventListener("pointerdown", () => {
-    updateUserPreference(toggle.getAttribute("key"), !toggle.checked);
+  // ? * --> pointerdown event is used instead of click event
+  // * 1 to be compatible on mobile devices
+  // * 2 to avoid 300ms delay on mobile devices
+
+  for (const object in preferenceToggles) {
+    const toggle = preferenceToggles[object];
+    toggle.addEventListener("pointerdown", () => {
+      updateUserPreference(toggle.getAttribute("key"), !toggle.checked);
+    });
+  }
+
+  addButton?.addEventListener("pointerdown", () => {
+    const data = {
+      name: petName.value,
+      type: petType.value,
+      dob: petDateOfBirth.value,
+      medicalHistory: petMedicalHistory.value,
+      images: petImages,
+    };
+    const inputFields = [petName, petType, petDateOfBirth, petMedicalHistory];
+
+    handleSubmit(data, "medicalHistory", utils, inputFields);
   });
-}
 
-addButton?.addEventListener("pointerdown", () => {
-  const data = {
-    name: petName.value,
-    type: petType.value,
-    dob: petDateOfBirth.value,
-    medicalHistory: petMedicalHistory.value,
-    images: petImages,
-  };
-  const inputFields = [petName, petType, petDateOfBirth, petMedicalHistory];
+  clearButton?.addEventListener("pointerdown", () => {
+    if (
+      petName.value ||
+      petType.value ||
+      petDateOfBirth.value ||
+      petMedicalHistory.value
+    )
+      presentAlert(
+        "Clear Form",
+        "Are you sure you want to clear the form?",
+        null,
+        [
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+          {
+            text: "Clear",
+            handler: () => {
+              resetForm([petName, petType, petDateOfBirth, petMedicalHistory]);
+            },
+          },
+        ]
+      );
+  });
 
-  handleSubmit(data, "medicalHistory", utils, inputFields);
-});
+  deletePets?.addEventListener("pointerdown", async () => {
+    let pets = await getPets("pets");
+    pets.length > 0 &&
+      presentAlert(
+        "Delete All Pets",
+        "Are you sure you want to delete all pets?",
+        null,
+        [
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+          {
+            text: "Delete",
+            handler: () => {
+              localStorage.removeItem("pets");
+              localStorage.removeItem("order");
+              setPets(utils);
+            },
+          },
+        ]
+      );
+  });
 
-clearButton?.addEventListener("pointerdown", () => {
-  if (
-    petName.value ||
-    petType.value ||
-    petDateOfBirth.value ||
-    petMedicalHistory.value
-  )
+  generatePets?.addEventListener("pointerdown", () => {
     presentAlert(
-      "Clear Form",
-      "Are you sure you want to clear the form?",
+      "Generate Fake Pets",
+      "enter number of pets to be generated!",
       null,
       [
         {
@@ -117,121 +165,76 @@ clearButton?.addEventListener("pointerdown", () => {
           role: "cancel",
         },
         {
-          text: "Clear",
-          handler: () => {
-            resetForm([petName, petType, petDateOfBirth, petMedicalHistory]);
+          text: "Generate",
+          role: "confirm",
+          handler: async (alertData) => {
+            const value = parseInt(alertData.number);
+            generateFakePets(value);
+            setPets(utils);
           },
         },
-      ]
-    );
-});
-
-deletePets?.addEventListener("pointerdown", async () => {
-  let pets = await getPets("pets");
-  pets.length > 0 &&
-    presentAlert(
-      "Delete All Pets",
-      "Are you sure you want to delete all pets?",
-      null,
+      ],
       [
         {
-          text: "Cancel",
-          role: "cancel",
-        },
-        {
-          text: "Delete",
-          handler: () => {
-            localStorage.removeItem("pets");
-            localStorage.removeItem("order");
-            orderContainer.innerHTML = "";
-            feedList.innerHTML = "";
-            petsCounterLabel.textContent = "0";
-          },
+          name: "number",
+          type: "number",
+          placeholder: "number",
+          min: 1,
+          max: 100,
         },
       ]
     );
-});
-
-generatePets?.addEventListener("pointerdown", () => {
-  presentAlert(
-    "Generate Fake Pets",
-    "enter number of pets to be generated!",
-    null,
-    [
-      {
-        text: "Cancel",
-        role: "cancel",
-      },
-      {
-        text: "Generate",
-        role: "confirm",
-        handler: async (alertData) => {
-          const value = parseInt(alertData.number);
-          generateFakePets(value);
-          setPets(utils);
-        },
-      },
-    ],
-    [
-      {
-        name: "number",
-        type: "number",
-        placeholder: "number",
-        min: 1,
-        max: 100,
-      },
-    ]
-  );
-});
-
-confirmDate?.addEventListener("pointerdown", () => {
-  if (!petDateOfBirth.value)
-    return presentAlert("Error", null, "Please select a date", [
-      {
-        text: "Ok",
-        role: "cancel",
-      },
-    ]);
-  const dateValue = new Date(petDateOfBirth.value);
-  const dateLabel = document.querySelector("[date]");
-  const formattedDate = dateValue.toISOString().slice(0, 10);
-  dateLabel.textContent = formattedDate;
-  modals[0].dismiss(null, "confirm");
-});
-
-petMedHisReadMore?.addEventListener("pointerdown", () => {
-  const container = petMedHisReadMore.parentElement;
-  container.setAttribute("readMore", "true");
-  petMedHisReadMore.textContent = "Read Less";
-  petMedHisReadMore.addEventListener("pointerdown", () => {
-    container.removeAttribute("readMore");
-    petMedHisReadMore.textContent = "Read More";
   });
-});
 
-tabs?.forEach((tab) => {
-  tab.addEventListener("pointerdown", () => {
-    tab.setAttribute("highlight", "true");
-    tabs.forEach((prevTab) => {
-      if (prevTab !== tab) prevTab.removeAttribute("highlight");
+  confirmDate?.addEventListener("pointerdown", () => {
+    if (!petDateOfBirth.value)
+      return presentAlert("Error", null, "Please select a date", [
+        {
+          text: "Ok",
+          role: "cancel",
+        },
+      ]);
+    const dateValue = new Date(petDateOfBirth.value);
+    const dateLabel = document.querySelector("[date]");
+    const formattedDate = dateValue.toISOString().slice(0, 10);
+    dateLabel.textContent = formattedDate;
+    modals[0].dismiss(null, "confirm");
+  });
+
+  petMedHisReadMore?.addEventListener("pointerdown", () => {
+    const container = petMedHisReadMore.parentElement;
+    container.setAttribute("readMore", "true");
+    petMedHisReadMore.textContent = "Read Less";
+    petMedHisReadMore.addEventListener("pointerdown", () => {
+      container.removeAttribute("readMore");
+      petMedHisReadMore.textContent = "Read More";
     });
   });
-});
 
-modelCancelBtns?.forEach((btn) => {
-  btn.addEventListener("pointerdown", () => {
-    const index = parseInt(btn.getAttribute("index"));
-    modals[index].dismiss(null, "cancel");
+  tabs?.forEach((tab) => {
+    tab.addEventListener("pointerdown", () => {
+      tab.setAttribute("highlight", "true");
+      tabs.forEach((prevTab) => {
+        if (prevTab !== tab) prevTab.removeAttribute("highlight");
+      });
+    });
   });
-});
 
-// ? * --> Searchbar Events
-searchbar?.addEventListener("ionInput", handleSearchInput);
-searchbar?.addEventListener("ionCancel", handleClear);
-searchbar?.addEventListener("ionClear", handleClear);
+  modelCancelBtns?.forEach((btn) => {
+    btn.addEventListener("pointerdown", () => {
+      const index = parseInt(btn.getAttribute("index"));
+      modals[index].dismiss(null, "cancel");
+    });
+  });
 
-orderContainer.addEventListener("ionItemReorder", (event) => {
-  // ? * --> Save the new order
-  event.detail.complete();
-  updateOrder(orderContainer);
-});
+  // ? * --> Searchbar Events
+  searchbar?.addEventListener("ionInput", handleSearchInput);
+  searchbar?.addEventListener("ionCancel", handleClear);
+  searchbar?.addEventListener("ionClear", handleClear);
+
+  orderContainer.addEventListener("ionItemReorder", (event) => {
+    // ? * --> Save the new order
+    event.detail.complete();
+    updateOrder(orderContainer);
+  });
+}
