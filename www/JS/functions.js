@@ -710,21 +710,11 @@ export function Notify(message, color, duration, position, id) {
  * @returns {string} returns the path of the image
  */
 export async function getImage(type, petId) {
+  // event.preventDefault();
+  // event.stopPropagation();
+
   if (type !== "camera" && type !== "gallery")
     return console.error(`Invalid type ${type}`);
-
-  const cameraSuccess = (imageData) => {
-    // document.getElementById(
-    //   "#img"
-    // ).src = `data:image/jpeg;base64, ${imageData}`;
-    const petId = "petId";
-    saveImage(petId, imageData);
-    return imageData;
-  };
-
-  const cameraError = (error) => {
-    presentAlert(`${type} Error`, null, error);
-  };
 
   const options = {
     quality: 60,
@@ -732,53 +722,57 @@ export async function getImage(type, petId) {
     saveToGallery: type === "camera" ? true : false,
     sourceType:
       type === "camera"
-        ? navigator.camera.PictureSourceType.CAMERA
-        : navigator.camera.PictureSourceType.PHOTOLIBRARY,
-    destinationType: navigator.camera.DestinationType.DATA_URL,
+        ? Camera.PictureSourceType.CAMERA
+        : Camera.PictureSourceType.PHOTOLIBRARY,
+    destinationType: Camera.DestinationType.FILE_URI,
+    targetWidth: 400,
+    targetHeight: 400,
+    encodingType: Camera.EncodingType.JPEG,
+    mediaType: Camera.MediaType.PICTURE,
   };
 
-  return await navigator.camera.getPicture(cameraSuccess, cameraError, options);
+  const cameraSuccess = (ImageURI) => {
+    console.log(ImageURI);
+    saveImage(petId, ImageURI);
+  };
+
+  const cameraError = (error) => {
+    // console.error(error);
+    presentAlert(`${type} Error`, null, error);
+  };
+
+  return navigator.camera.getPicture(cameraSuccess, cameraError, options);
 }
 
-export function onOffline() {
-  Notify("You are offline", "danger", null, "bottom", "#offline");
-  document.addEventListener("online", onOnline, false);
-}
-
-function onOnline() {
-  document.removeEventListener("online", onOnline, false);
-  document.getElementById("#offline")?.remove();
-  Notify("Back online", "success", 2000, "bottom", null);
-}
-
-// Import the required Cordova File plugin APIs
-
-async function saveImage(imageData, petId) {
-  const { resolveLocalFileSystemURL } = window;
+async function saveImage(imageURI, petId) {
+  console.log("saving image");
   const fileName = `${petId}_${new Date().getTime()}.jpg`;
+  let URL;
 
   try {
-    // Resolve the local file system URL for the data directory
-    const dataDirURL = await resolveLocalFileSystemURL(
-      cordova.file.dataDirectory
-    );
+    //  ? * -->  Resolve the local file system URL for the data directory
+    URL = resolveLocalFileSystemURL(cordova.file.dataDirectory, (dirEntry) => {
+      //  * --> Create a new file with the specified file name in the data directory
+      const fileEntry = createFile(dirEntry, fileName);
 
-    // Create a new file with the specified file name in the data directory
-    const fileEntry = await createFile(dataDirURL, fileName);
+      //  * --> Write the image data to the file
+      writeFile(fileEntry, imageURI);
 
-    // Write the image data to the file
-    await writeFile(fileEntry, imageData);
-
-    // Get the URL of the saved image file
-    const imageURL = fileEntry.toURL();
-    return imageURL;
+      //  * --> Get the URL of the saved image file
+      const imageURL = fileEntry.toURL();
+      return imageURL;
+    });
   } catch (error) {
+    console.error(error);
     presentAlert("Save Image", "error saving image", error.message);
   }
+  console.log(URL);
+  return URL;
 }
 
 // Helper function to create a file
 function createFile(dirEntry, fileName) {
+  console.log("creating file");
   return new Promise((resolve, reject) => {
     dirEntry.getFile(
       fileName,
@@ -792,6 +786,7 @@ function createFile(dirEntry, fileName) {
 // Helper function to write data to a file
 function writeFile(fileEntry, dataObj) {
   return new Promise((resolve, reject) => {
+    console.log("writing to file");
     fileEntry.createWriter((fileWriter) => {
       fileWriter.onwriteend = () => {
         console.log("Successful file write...");
@@ -812,4 +807,15 @@ function writeFile(fileEntry, dataObj) {
       fileWriter.write(dataObj);
     });
   });
+}
+
+export function onOffline() {
+  Notify("You are offline", "danger", null, "bottom", "#offline");
+  document.addEventListener("online", onOnline, false);
+}
+
+function onOnline() {
+  document.removeEventListener("online", onOnline, false);
+  document.getElementById("#offline")?.remove();
+  Notify("Back online", "success", 2000, "bottom", null);
 }

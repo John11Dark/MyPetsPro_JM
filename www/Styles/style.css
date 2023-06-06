@@ -488,40 +488,31 @@ ion-toggle {
   place-content: center;
   place-items: center;
   place-self: center;
-  width: 100dvw;
+  width: 90vw;
+  width: 90dvw;
   padding: var(--spacing-200);
 }
 
-.form-separator {
-  height: 140px;
-  align-items: start;
-  justify-content: start;
-  overflow: hidden;
-  gap: var(--spacing-200);
-}
-
-.input-wrapper {
-  width: 100%;
-  height: 125px;
-}
-
-.select-date-button {
+.form-buttons {
   --background: var(--surface-grayish);
-  height: 115px;
-  width: 200px;
+  height: 50px;
+  width: 100%;
   --border-radius: var(--radius-100);
   color: var(--paragraph-color);
+  margin-bottom: 15px;
 }
+
 .ion-input {
   background-color: var(--surface-grayish);
   --background: var(--surface-grayish);
   --padding-start: 12px;
-  border-radius: var(--radius-100);
   height: 50px;
   margin-bottom: 15px;
   color: var(--paragraph-color);
   font-size: var(--font-200);
   font-weight: 300;
+  border-radius: var(--radius-100) !important;
+  --border-radius: var(--radius-100) !important;
 }
 
 .text-area {
@@ -590,6 +581,11 @@ ion-toggle {
 }
 
 /* ? <-*-> Modal <-*-> */
+ion-datetime {
+  --box-shadow: 0 0 10em -2em #e9d2bd3f;
+  --background: var(--background-color) !important;
+  --color: var(--primary-color-light) !important;
+}
 
 ion-modal {
   --border-radius: 0.5em;
@@ -638,6 +634,7 @@ ion-modal ion-toolbar {
   object-position: bottom;
   padding: var(--spacing-400) var(--spacing-400) 0;
 }
+
 .modal-pet-details {
   display: flex;
   padding: var(--spacing-400);

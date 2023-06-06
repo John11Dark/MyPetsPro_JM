@@ -46,7 +46,8 @@ const deletePets = document.querySelector("[delete-btn]");
 const generatePets = document.querySelector("[generate-btn]");
 const orderContainer = document.querySelector("#reorderContainer");
 const imgBtn = document.querySelector("#imgBtn");
-
+const uploadAnImageActions = document.querySelector("#uploadAnImageActions");
+const uploadAnImage = document.querySelector("#uploadAnImage");
 // ? * --> Variables
 
 const utils = {
@@ -65,82 +66,99 @@ const preferenceToggles = {
   sound: soundToggle,
 };
 
-// ? * --> Doc Setup
+const app = {
+  tempURL: null,
+  permanentFolder: null,
+  KEY: "tempURL",
+  images: [],
+  files: [],
+  lunchTime: 0,
+  initialize: function () {
+    setTimeout(() => {
+      app.setupDocument();
+      app.addEventListeners();
+      console.log("App Initialized");
+    }, app.lunchTime);
+  },
+  addEventListeners: function onDeviceReady() {
+    // ? * --> Event Listeners
 
-// console.log("not ready");
-document.addEventListener("deviceready", onDeviceReady, false);
+    // ? * --> pointerdown event is used instead of click event
+    // * 1 to be compatible on mobile devices
+    // * 2 to avoid 300ms delay on mobile devices
 
-function onDeviceReady() {
-  // console.log("ready");
+    addButton?.addEventListener("pointerdown", () => {
+      const data = {
+        name: petName.value,
+        type: petType.value,
+        dob: petDateOfBirth.value,
+        medicalHistory: petMedicalHistory.value,
+        images: petImages,
+      };
+      const inputFields = [petName, petType, petDateOfBirth, petMedicalHistory];
 
-  //  * --> Set user preference
-  setUserPreference(preferenceToggles);
-
-  //  * --> Set Platform
-  platformLabel.textContent = `For ${window.cordova.platformId}`;
-
-  //  * --> Set Pets
-
-  petsList && setPets(utils);
-
-  // ? * --> Event Listeners
-
-  // ? * --> pointerdown event is used instead of click event
-  // * 1 to be compatible on mobile devices
-  // * 2 to avoid 300ms delay on mobile devices
-
-  for (const object in preferenceToggles) {
-    const toggle = preferenceToggles[object];
-    toggle.addEventListener("pointerdown", () => {
-      updateUserPreference(toggle.getAttribute("key"), !toggle.checked);
+      handleSubmit(data, "medicalHistory", utils, inputFields);
     });
-  }
 
-  addButton?.addEventListener("pointerdown", () => {
-    const data = {
-      name: petName.value,
-      type: petType.value,
-      dob: petDateOfBirth.value,
-      medicalHistory: petMedicalHistory.value,
-      images: petImages,
-    };
-    const inputFields = [petName, petType, petDateOfBirth, petMedicalHistory];
-
-    handleSubmit(data, "medicalHistory", utils, inputFields);
-  });
-
-  clearButton?.addEventListener("pointerdown", () => {
-    if (
-      petName.value ||
-      petType.value ||
-      petDateOfBirth.value ||
-      petMedicalHistory.value
-    )
-      presentAlert(
-        "Clear Form",
-        "Are you sure you want to clear the form?",
-        null,
-        [
-          {
-            text: "Cancel",
-            role: "cancel",
-          },
-          {
-            text: "Clear",
-            handler: () => {
-              resetForm([petName, petType, petDateOfBirth, petMedicalHistory]);
+    clearButton?.addEventListener("pointerdown", () => {
+      if (
+        petName.value ||
+        petType.value ||
+        petDateOfBirth.value ||
+        petMedicalHistory.value
+      )
+        presentAlert(
+          "Clear Form",
+          "Are you sure you want to clear the form?",
+          null,
+          [
+            {
+              text: "Cancel",
+              role: "cancel",
             },
-          },
-        ]
-      );
-  });
+            {
+              text: "Clear",
+              handler: () => {
+                resetForm([
+                  petName,
+                  petType,
+                  petDateOfBirth,
+                  petMedicalHistory,
+                ]);
+              },
+            },
+          ]
+        );
+    });
 
-  deletePets?.addEventListener("pointerdown", async () => {
-    let pets = await getPets("pets");
-    pets.length > 0 &&
+    deletePets?.addEventListener("pointerdown", async () => {
+      let pets = await getPets("pets");
+      pets.length > 0 &&
+        presentAlert(
+          "Delete All Pets",
+          "Are you sure you want to delete all pets?",
+          null,
+          [
+            {
+              text: "Cancel",
+              role: "cancel",
+            },
+            {
+              text: "Delete",
+              handler: () => {
+                localStorage.removeItem("pets");
+                localStorage.removeItem("order");
+                setPets(utils);
+              },
+            },
+          ]
+        );
+    });
+
+    generatePets?.addEventListener("pointerdown", () => {
       presentAlert(
-        "Delete All Pets",
-        "Are you sure you want to delete all pets?",
+        "Generate Fake Pets",
+        "enter number of pets to be generated!",
         null,
         [
           {
@@ -148,103 +166,178 @@ function onDeviceReady() {
             role: "cancel",
           },
           {
-            text: "Delete",
-            handler: () => {
-              localStorage.removeItem("pets");
-              localStorage.removeItem("order");
+            text: "Generate",
+            role: "confirm",
+            handler: async (alertData) => {
+              const value = parseInt(alertData.number);
+              generateFakePets(value);
               setPets(utils);
             },
           },
+        ],
+        [
+          {
+            name: "number",
+            type: "number",
+            placeholder: "number",
+            min: 1,
+            max: 100,
+          },
         ]
       );
-  });
-
-  generatePets?.addEventListener("pointerdown", () => {
-    presentAlert(
-      "Generate Fake Pets",
-      "enter number of pets to be generated!",
-      null,
-      [
-        {
-          text: "Cancel",
-          role: "cancel",
-        },
-        {
-          text: "Generate",
-          role: "confirm",
-          handler: async (alertData) => {
-            const value = parseInt(alertData.number);
-            generateFakePets(value);
-            setPets(utils);
-          },
-        },
-      ],
-      [
-        {
-          name: "number",
-          type: "number",
-          placeholder: "number",
-          min: 1,
-          max: 100,
-        },
-      ]
-    );
-  });
-
-  confirmDate?.addEventListener("pointerdown", () => {
-    if (!petDateOfBirth.value)
-      return presentAlert("Error", null, "Please select a date", [
-        {
-          text: "Ok",
-          role: "cancel",
-        },
-      ]);
-    const dateValue = new Date(petDateOfBirth.value);
-    const dateLabel = document.querySelector("[date]");
-    const formattedDate = dateValue.toISOString().slice(0, 10);
-    dateLabel.textContent = formattedDate;
-    modals[0].dismiss(null, "confirm");
-  });
-
-  petMedHisReadMore?.addEventListener("pointerdown", () => {
-    const container = petMedHisReadMore.parentElement;
-    container.setAttribute("readMore", "true");
-    petMedHisReadMore.textContent = "Read Less";
-    petMedHisReadMore.addEventListener("pointerdown", () => {
-      container.removeAttribute("readMore");
-      petMedHisReadMore.textContent = "Read More";
     });
-  });
 
-  tabs?.forEach((tab) => {
-    tab.addEventListener("pointerdown", () => {
-      tab.setAttribute("highlight", "true");
-      tabs.forEach((prevTab) => {
-        if (prevTab !== tab) prevTab.removeAttribute("highlight");
+    confirmDate?.addEventListener("pointerdown", () => {
+      if (!petDateOfBirth.value)
+        return presentAlert("Error", null, "Please select a date", [
+          {
+            text: "Ok",
+            role: "cancel",
+          },
+        ]);
+      const dateValue = new Date(petDateOfBirth.value);
+      const dateLabel = document.querySelector("[date]");
+      const formattedDate = dateValue.toISOString().slice(0, 10);
+      dateLabel.textContent = formattedDate;
+      modals[0].dismiss(null, "confirm");
+    });
+
+    petMedHisReadMore?.addEventListener("pointerdown", () => {
+      const container = petMedHisReadMore.parentElement;
+      container.setAttribute("readMore", "true");
+      petMedHisReadMore.textContent = "Read Less";
+      petMedHisReadMore.addEventListener("pointerdown", () => {
+        container.removeAttribute("readMore");
+        petMedHisReadMore.textContent = "Read More";
       });
     });
-  });
 
-  modelCancelBtns?.forEach((btn) => {
-    btn.addEventListener("pointerdown", () => {
-      const index = parseInt(btn.getAttribute("index"));
-      modals[index].dismiss(null, "cancel");
+    uploadAnImage?.addEventListener("pointerdown", () => {
+      uploadAnImageActions.present();
     });
-  });
 
-  // ? * --> Searchbar Events
-  searchbar?.addEventListener("ionInput", handleSearchInput);
-  searchbar?.addEventListener("ionCancel", handleClear);
-  searchbar?.addEventListener("ionClear", handleClear);
+    tabs?.forEach((tab) => {
+      tab.addEventListener("pointerdown", () => {
+        tab.setAttribute("highlight", "true");
+        tabs.forEach((prevTab) => {
+          if (prevTab !== tab) prevTab.removeAttribute("highlight");
+        });
+      });
+    });
 
-  orderContainer.addEventListener("ionItemReorder", (event) => {
-    // ? * --> Save the new order
-    event.detail.complete();
-    updateOrder(orderContainer);
-  });
-  imgBtn?.addEventListener("pointerdown", async () => {
-    const img = await getImage("gallery");
-  });
-  // ? * --> Network Events
-  document.addEventListener("offline", onOffline, false);
-}
+    modelCancelBtns?.forEach((btn) => {
+      btn.addEventListener("pointerdown", () => {
+        const index = parseInt(btn.getAttribute("index"));
+        modals[index].dismiss(null, "cancel");
+      });
+    });
+
+    // ? * --> Searchbar Events
+    searchbar?.addEventListener("ionInput", handleSearchInput);
+    searchbar?.addEventListener("ionCancel", handleClear);
+    searchbar?.addEventListener("ionClear", handleClear);
+
+    orderContainer.addEventListener("ionItemReorder", (event) => {
+      // ? * --> Save the new order
+      event.detail.complete();
+      updateOrder(orderContainer);
+    });
+    imgBtn?.addEventListener("pointerdown", async () => {
+      const img = await getImage("gallery");
+    });
+
+    // ? * --> Network Events
+    document.addEventListener("offline", onOffline, false);
+  },
+
+  setupDocument: function () {
+    // ? * --> Setup Document
+
+    //  * --> Set user preference
+    setUserPreference(preferenceToggles);
+
+    //  * --> Set Platform
+    platformLabel.textContent = `For ${window.cordova.platformId}`;
+
+    // * --> set actionsheet buttons
+    uploadAnImageActions.buttons = [
+      {
+        text: "Take a photo",
+        handler: () => {
+          getImage("camera", petImages);
+        },
+      },
+      {
+        text: "Choose from gallery",
+        handler: () => {
+          getImage("gallery", petImages);
+        },
+      },
+      {
+        text: "Cancel",
+        role: "cancel",
+        data: {
+          action: "cancel",
+        },
+      },
+    ];
+
+    //  * --> Set Pets
+
+    petsList && setPets(utils);
+  },
+
+  setPermanentFolder: function () {
+    let folder = cordova.file.dataDirectory;
+
+    resolveLocalFileSystemURL(folder, (dir) => {
+      dir.getDirectory(
+        "pets",
+        {
+          create: true,
+          exclusive: false,
+        },
+        (dirEntry) => {
+          app.permanentFolder = dirEntry;
+        },
+        (err) => {
+          presentAlert("loading files Error", null, err);
+        }
+      );
+    });
+  },
+
+  loadFiles: function () {
+    app.permanentFolder.getDirectory(
+      "images",
+      {
+        create: true,
+        exclusive: false,
+      },
+      (dirEntry) => {
+        app.images = dirEntry;
+      },
+      (err) => {
+        presentAlert("loading images Error", null, err);
+      }
+    );
+
+    app.permanentFolder.getDirectory(
+      "files",
+      {
+        create: true,
+        exclusive: false,
+      },
+      (dirEntry) => {
+        app.files = dirEntry;
+      },
+      (err) => {
+        presentAlert("loading files Error", null, err);
+      }
+    );
+  },
+};
+
+// ? * --> Doc Setup
+
+document.addEventListener("deviceready", app.initialize, false);
