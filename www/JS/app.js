@@ -11,7 +11,7 @@ import {
   updateUserPreference,
   getPets,
   updateOrder,
-  networkStatus,
+  onOffline,
   getImage,
 } from "./functions.js";
 
@@ -45,6 +45,7 @@ const soundToggle = document.querySelector("[sound-toggle]");
 const deletePets = document.querySelector("[delete-btn]");
 const generatePets = document.querySelector("[generate-btn]");
 const orderContainer = document.querySelector("#reorderContainer");
+const imgBtn = document.querySelector("#imgBtn");
 
 // ? * --> Variables
 
@@ -66,12 +67,12 @@ const preferenceToggles = {
 
 // ? * --> Doc Setup
 
-console.log("not ready");
+// console.log("not ready");
 document.addEventListener("deviceready", onDeviceReady, false);
-console.log("ready");
-const imgBtn = document.querySelector("#imgBtn");
 
 function onDeviceReady() {
+  // console.log("ready");
+
   //  * --> Set user preference
   setUserPreference(preferenceToggles);
 
@@ -242,10 +243,8 @@ function onDeviceReady() {
     updateOrder(orderContainer);
   });
   imgBtn?.addEventListener("pointerdown", async () => {
-    document.querySelector("#img").src = await getImage("gallery");
+    const img = await getImage("gallery");
   });
-
   // ? * --> Network Events
-  document.addEventListener("offline", networkStatus(false), false);
-  document.addEventListener("online", networkStatus(true), false);
+  document.addEventListener("offline", onOffline, false);
 }

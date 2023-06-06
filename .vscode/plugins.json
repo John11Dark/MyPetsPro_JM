@@ -1,1 +1,1 @@
-{"plugins":["cordova-plugin-device","cordova-plugin-camera","cordova-plugin-network-information","cordova-plugin-file"]}
+{"plugins":["cordova-plugin-camera","cordova-plugin-device","cordova-plugin-network-information","cordova-plugin-file"]}

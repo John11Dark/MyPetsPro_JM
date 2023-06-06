@@ -1,5 +1,5 @@
 {
-  "name": "eu.johnmuller.mypetspro_jm",
+  "name": "eu.johnmuller.eu.mypetspro_jm",
   "displayName": "MyPetsPro_JM",
   "version": "1.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
@@ -18,25 +18,15 @@
     "cordova-plugin-camera": "^6.0.0",
     "cordova-plugin-device": "^2.1.0",
     "cordova-plugin-file": "^7.0.0",
-    "cordova-plugin-network-information": "^3.0.0"
+    "cordova-plugin-network-information": "^3.0.0",
+    "device": "^0.3.12"
   },
   "cordova": {
-    "platforms": [
-      "android",
-      "browser"
-    ],
     "plugins": {
+      "cordova-plugin-camera": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-camera": {
-        "ANDROIDX_CORE_VERSION": "1.6.+"
-      },
-      "cordova-plugin-network-information": {
-        "ANDROIDX_CORE_VERSION": "1.6.+"
-      },
-      "cordova-plugin-file": {
-        "ANDROIDX_CORE_VERSION": "1.6.+",
-        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
-      }
+      "cordova-plugin-network-information": {},
+      "cordova-plugin-file": {}
     }
   }
 }

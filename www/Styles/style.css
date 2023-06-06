@@ -83,7 +83,7 @@
   --radius-circle: 50%;
 
   /** Custom sizes */
-  --header-hight: min(10dvh, 10vh);
+  --header-hight: min(12dvh, 12vh);
 
   /* ? Box shadows */
   --shadow-accent-text: 0.5px 0.5px 3px #e09b41d8;
@@ -204,7 +204,8 @@ body {
 }
 
 .header {
-  min-height: 7dvh;
+  min-height: 8dvh;
+  padding: var(--spacing-200);
   --background: transparent;
 }
 
@@ -247,10 +248,10 @@ body {
 .tab-bar {
   --background: var(--tab-background-color);
   --color: var(--primary-color);
-  padding: var(--spacing-200);
+  padding: var(--spacing-300);
   border-radius: 2em 2em 0 0;
   border: unset;
-  height: 7dvh;
+  height: 8dvh;
 }
 
 .navigation-tabs {
@@ -316,7 +317,7 @@ ion-toggle {
   background-color: var(--surface-grayish);
   color: var(--paragraph-color);
 
-  width: 90%;
+  width: 80%;
   height: 50px;
   margin-left: 2em;
   padding: var(--spacing-200);
@@ -364,7 +365,8 @@ ion-toggle {
 .ion-item {
   background-color: transparent !important;
   --background: transparent !important;
-  max-width: 450px;
+  max-width: 400px;
+  min-width: 300px;
   min-height: 300px;
   padding: 0 !important;
   margin: 0 !important;
@@ -453,7 +455,7 @@ ion-toggle {
 }
 .pet-list {
   background-color: transparent;
-  width: 100dvw;
+  width: 95dvw;
   display: grid;
   align-content: start;
   justify-content: center;
@@ -464,6 +466,8 @@ ion-toggle {
 .pet-item {
   --background: var(--surface-grayish);
   border-radius: var(--radius-200);
+  max-width: 400px;
+  min-width: 300px;
 }
 .pet-item[hide="true"] {
   display: none;

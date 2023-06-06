@@ -300,7 +300,7 @@ export async function setPets(utils) {
     pets.forEach((pet) => {
       // ? * --> create a pet item and set its attributes
       const petItem = document.createElement("ion-item-sliding");
-      petItem.className = "pet-item | search-item-elements | clickable";
+      petItem.className = "pet-item | search-item-elements";
       // ? * --> set the pet item name and type attributes for the search functionality
       petItem.setAttribute("name", pet.name);
       petItem.setAttribute("type", pet.type);
@@ -347,7 +347,7 @@ export async function setPets(utils) {
   }
   utils.counterLabel.innerText = petsCounter;
   if (pets && pets.length > 0) {
-    const deleteButtons = document.querySelectorAll(".delete-button");
+    const deleteButtons = document.querySelectorAll(".delete-btn");
     const editButtons = document.querySelectorAll(".edit-button");
     const viewButtons = document.querySelectorAll(".view-button");
     deleteButtons.forEach((button) => {
@@ -623,8 +623,10 @@ export function generateFakePets(petsNumber) {
 
 export function handleSearchInput(event) {
   const pets = document.querySelectorAll(".search-item-elements");
+  const reorderContainer = document.querySelector("#reorderContainer");
+  reorderContainer.disabled = true;
   const query = event.target.value.trim().toLowerCase();
-  if (query === "" || query === null) return handleClear();
+  if (query === "" || query === null) return handleClear(reorderContainer);
   requestAnimationFrame(() => {
     pets.forEach((pet) => {
       const setVisibility =
@@ -635,11 +637,12 @@ export function handleSearchInput(event) {
   });
 }
 
-export function handleClear() {
+export function handleClear(reorderContainer) {
   const pets = document.querySelectorAll(".search-item-elements");
   pets.forEach((pet) => {
     pet.removeAttribute("hide");
   });
+  reorderContainer.disabled = false;
 }
 
 export function confirmModal(modal) {
@@ -707,73 +710,106 @@ export function Notify(message, color, duration, position, id) {
  * @returns {string} returns the path of the image
  */
 export async function getImage(type, petId) {
+  if (type !== "camera" && type !== "gallery")
+    return console.error(`Invalid type ${type}`);
+
   const cameraSuccess = (imageData) => {
-    return saveImage(imageData, petId);
+    // document.getElementById(
+    //   "#img"
+    // ).src = `data:image/jpeg;base64, ${imageData}`;
+    const petId = "petId";
+    saveImage(petId, imageData);
+    return imageData;
   };
 
   const cameraError = (error) => {
     presentAlert(`${type} Error`, null, error);
   };
 
-  const galleryOptions = {
-    quality: 100,
-    allowEditing: false,
-    saveToGallery: true,
-    sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY,
+  const options = {
+    quality: 60,
+    allowEditing: true,
+    saveToGallery: type === "camera" ? true : false,
+    sourceType:
+      type === "camera"
+        ? navigator.camera.PictureSourceType.CAMERA
+        : navigator.camera.PictureSourceType.PHOTOLIBRARY,
     destinationType: navigator.camera.DestinationType.DATA_URL,
   };
 
-  const cameraOptions = {
-    quality: 100,
-    allowEditing: false,
-    saveToGallery: true,
-    sourceType: navigator.camera.PictureSourceType.CAMERA,
-    destinationType: navigator.camera.DestinationType.DATA_URL,
-  };
-
-  switch (type) {
-    case "camera":
-      return navigator.camera.getPicture(
-        cameraSuccess,
-        cameraError,
-        cameraOptions
-      );
-    case "gallery":
-      return navigator.camera.getPicture(
-        cameraSuccess,
-        cameraError,
-        galleryOptions
-      );
-    default:
-      throw new Error(
-        `Invalid type ${type}. Only 'camera' or 'gallery' are allowed.`
-      );
-  }
+  return await navigator.camera.getPicture(cameraSuccess, cameraError, options);
 }
 
-export async function saveImage(imageData, petId) {
+export function onOffline() {
+  Notify("You are offline", "danger", null, "bottom", "#offline");
+  document.addEventListener("online", onOnline, false);
+}
+
+function onOnline() {
+  document.removeEventListener("online", onOnline, false);
+  document.getElementById("#offline")?.remove();
+  Notify("Back online", "success", 2000, "bottom", null);
+}
+
+// Import the required Cordova File plugin APIs
+
+async function saveImage(imageData, petId) {
+  const { resolveLocalFileSystemURL } = window;
   const fileName = `${petId}_${new Date().getTime()}.jpg`;
 
   try {
-    const base64Data = btoa(imageData);
-    const filePath = await File.writeFile(
-      File.dataDirectory,
-      fileName,
-      base64Data,
-      { replace: true }
+    // Resolve the local file system URL for the data directory
+    const dataDirURL = await resolveLocalFileSystemURL(
+      cordova.file.dataDirectory
     );
-    const imageURL = filePath.toURL();
+
+    // Create a new file with the specified file name in the data directory
+    const fileEntry = await createFile(dataDirURL, fileName);
+
+    // Write the image data to the file
+    await writeFile(fileEntry, imageData);
+
+    // Get the URL of the saved image file
+    const imageURL = fileEntry.toURL();
     return imageURL;
   } catch (error) {
-    throw new Error(`Failed to save image: ${error.message}`);
+    presentAlert("Save Image", "error saving image", error.message);
   }
 }
 
-export async function networkStatus(online) {
-  if (online) {
-    document.getElementById("#offline")?.remove();
-    Notify("Back online", "success", 2000, "bottom", "#online");
-    return;
-  }
-  Notify("You are offline", "danger", null, "bottom", "#offline");
+// Helper function to create a file
+function createFile(dirEntry, fileName) {
+  return new Promise((resolve, reject) => {
+    dirEntry.getFile(
+      fileName,
+      { create: true, exclusive: false },
+      resolve,
+      reject
+    );
+  });
+}
+
+// Helper function to write data to a file
+function writeFile(fileEntry, dataObj) {
+  return new Promise((resolve, reject) => {
+    fileEntry.createWriter((fileWriter) => {
+      fileWriter.onwriteend = () => {
+        console.log("Successful file write...");
+        resolve();
+      };
+
+      fileWriter.onerror = (e) => {
+        console.log("Failed file write: " + e.toString());
+        reject(e);
+      };
+
+      // If data object is not passed in,
+      // create a new Blob instead.
+      if (!dataObj) {
+        dataObj = new Blob(["some file data"], { type: "text/plain" });
+      }
+
+      fileWriter.write(dataObj);
+    });
+  });
 }
