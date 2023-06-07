@@ -14,6 +14,7 @@ import {
   onOffline,
   getImage,
   deletePet,
+  addPetCertificate,
 } from "./functions.js";
 
 // ? * --> DOM Elements
@@ -30,6 +31,7 @@ const petMedHisReadMore = document.querySelector("[medicalHistoryLabel]");
 const confirmDate = document.querySelector("#confirmDateBtn");
 const uploadAnImageActions = document.querySelector("#uploadAnImageActions");
 const uploadAnImage = document.querySelector("#uploadAnImage");
+const uploadFile = document.querySelector("#uploadFile");
 
 //  * --> Pets List Page
 const orderContainer = document.querySelector("#reorderContainer");
@@ -87,11 +89,6 @@ const petFiles = [];
 
 //  * --> App Main Object
 const app = {
-  tempURL: null,
-  permanentFolder: null,
-  KEY: "tempURL",
-  images: [],
-  files: [],
   lunchTime: 0,
   initialize: function () {
     app.setupDocument();
@@ -111,11 +108,13 @@ const app = {
         type: petType.value,
         dob: petDateOfBirth.value,
         medicalHistory: petMedicalHistory.value,
-        images: petImages,
       };
       const inputFields = [petName, petType, petDateOfBirth, petMedicalHistory];
 
-      handleSubmit(data, "medicalHistory", utils, inputFields);
+      handleSubmit(data, "medicalHistory", utils, inputFields, {
+        images: petImages,
+        files: petFiles,
+      });
     });
 
     clearButton?.addEventListener("pointerdown", () => {
@@ -220,6 +219,19 @@ const app = {
       uploadAnImageActions.present();
     });
 
+    uploadFile?.addEventListener("pointerdown", async () => {
+      const file = await addPetCertificate("id")
+        .then(() => {
+          // Certificate added successfully
+          alert("Success", null, "Certificate added successfully");
+        })
+        .catch((error) => {
+          // Error occurred while adding the certificate
+          alert("Error", null, error.message);
+        });
+      petFiles.push(file);
+    });
+
     tabs?.forEach((tab) => {
       tab.addEventListener("pointerdown", () => {
         tab.setAttribute("highlight", "true");
@@ -271,14 +283,16 @@ const app = {
     uploadAnImageActions.buttons = [
       {
         text: "Take a photo",
-        handler: () => {
-          getImage("camera");
+        handler: async () => {
+          await getImage("camera", petImages);
+          console.log(petImages);
         },
       },
       {
         text: "Choose from gallery",
-        handler: () => {
-          getImage("gallery");
+        handler: async () => {
+          await getImage("gallery", petImages);
+          console.log(petImages);
         },
       },
       {
@@ -295,55 +309,7 @@ const app = {
     petsList && setPets(utils);
   },
 
-  setPermanentFolder: function () {
-    let folder = cordova.file.dataDirectory;
-
-    resolveLocalFileSystemURL(folder, (dir) => {
-      dir.getDirectory(
-        "pets",
-        {
-          create: true,
-          exclusive: false,
-        },
-        (dirEntry) => {
-          app.permanentFolder = dirEntry;
-        },
-        (err) => {
-          alert("loading files Error", null, err);
-        }
-      );
-    });
-  },
-
-  loadFiles: function () {
-    app.permanentFolder.getDirectory(
-      "images",
-      {
-        create: true,
-        exclusive: false,
-      },
-      (dirEntry) => {
-        app.images = dirEntry;
-      },
-      (err) => {
-        alert("loading images Error", null, err);
-      }
-    );
-
-    app.permanentFolder.getDirectory(
-      "files",
-      {
-        create: true,
-        exclusive: false,
-      },
-      (dirEntry) => {
-        app.files = dirEntry;
-      },
-      (err) => {
-        alert("loading files Error", null, err);
-      }
-    );
-  },
+  loadFiles: function () {},
 };
 
 // ? * --> Initialize App on Device Ready

@@ -56,14 +56,11 @@
                 <ion-header>
                     <ion-toolbar class="modal-tool-bar">
                         <ion-buttons slot="start">
-                            <ion-button index="0" id="cancelPetBtn" class="model-cancel">Cancel</ion-button>
-                        </ion-buttons>
-                        <ion-buttons slot="end">
-                            <ion-button id="confirmPetBtn" strong="true">Confirm</ion-button>
+                            <ion-button index="0" id="cancelModelPetBtn" class="model-cancel">Cancel</ion-button>
                         </ion-buttons>
                     </ion-toolbar>
                 </ion-header>
-                <ion-content class="pet-model">
+                <ion-content class="pet-model-content">
 
                     <span pet-date-added class="created-date-modal"></span>
 
@@ -76,8 +73,33 @@
                             <p pet-medical class="pet-modal-text">Medical history</p>
                         </div>
                     </div>
-                    <ion-button class="add-img" id="addImg">Add image</ion-button>
-                    <ion-button class="view-img" id="viewImg">View image</ion-button>
+                    <div class="modal-btns">
+                        <ion-button id="addAnImage" class="">
+                            <span>Add image</span>
+                        </ion-button>
+                        <ion-action-sheet mode="ios" header="Add an image" id="addAnImageActions"></ion-action-sheet>
+                        <ion-button class="view-img" id="viewImg">View image</ion-button>
+                    </div>
+                </ion-content>
+            </ion-modal>
+
+            <ion-modal index="2" id="view-imgs-model">
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-buttons slot="start">
+                            <ion-button index="2" id="cancelImgsBtn" class="model-cancel">Cancel</ion-button>
+                        </ion-buttons>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content class="ion-padding">
+
+
+                    <ion-label>
+                        <p class="img-modal-name">View <span img-modal-name></span> images</p>
+                    </ion-label>
+                    <div class="imgs-container" imgs-container>
+
+                    </div>
                 </ion-content>
             </ion-modal>
 
@@ -268,7 +290,7 @@
 
                                 <ion-button class="get-file | form-buttons" id="uploadFile">
                                     <ion-icon name="document" class="ion-icon"></ion-icon>
-                                    <span date>upload file</span>
+                                    <span date>upload Certificate</span>
                                 </ion-button>
 
                                 <ion-button id="uploadAnImage" class="form-buttons">

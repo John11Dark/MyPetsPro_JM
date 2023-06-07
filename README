@@ -16,13 +16,7 @@
    iii. Improve the utility of the current application (functionality not related to the scenario will not be considered)
    c. Document this functionality in a Word Document, supported by a brief description as well as a minimum of 3 screenshots.
 
-6. Network Plugin
-   a. Install the Cordova Network plugin to your application in order to detect changes in the user's network connectivity.
-   b. Display a warning message whenever the device is no longer connected to the internet.
-   c. Automatically dismiss the warning message once the internet connection is restored.
-   d. Test the implementation in different scenarios, such as turning on/off airplane mode or switching between WiFi and mobile data.
-
-7. Deploying your Cordova project
+6. Deploying your Cordova project
    a. In this task you are expected to design a logo for your app using your preferred tool(s).
    b. Configure your project’s config.xml to change the logo from Cordova’s default to your newly designed logo. Note that you need to design your logo to cover different screen densities. See https://cordova.apache.org/docs/en/latest/config_ref/images.html for more information.
    c. Build your Cordova project to an Android application to extract the APK file.

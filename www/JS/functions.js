@@ -63,7 +63,17 @@ function setFeeds(list, notify, pets) {
 
         <ion-label>
             <span class="feed-card-bold-label">Type</span>
-            <span class="feed-card-paragraph">${pet.type}</span>
+            <ion-icon name="${
+              pet.type.toLowerCase() === "other"
+                ? "paw"
+                : pet.type.toLowerCase() === "fish"
+                ? "fish"
+                : pet.type.toLowerCase() === "bird"
+                ? "egg"
+                : pet.type.toLowerCase() === "cat"
+                ? "logo-octocat"
+                : "logo-android"
+            }"></ion-icon>
         </ion-label>
 
         <ion-label>
@@ -759,7 +769,13 @@ export function confirmModal(modal) {
  * @param {object} inputFields - The input fields of the form.
  * @returns {void}
  */
-export async function handleSubmit(data, exception, utils, inputFields) {
+export async function handleSubmit(
+  data,
+  exception,
+  utils,
+  inputFields,
+  extraFields
+) {
   for (const [key, value] of Object.entries(data)) {
     if (value === "" || value == null) {
       if (key === exception) {
@@ -768,7 +784,7 @@ export async function handleSubmit(data, exception, utils, inputFields) {
         return alert("New Pet", "error", "Please fill in all fields");
       }
     }
-    if (value != null && key != "images") {
+    if (value != null) {
       value.trim();
     }
   }
@@ -780,9 +796,10 @@ export async function handleSubmit(data, exception, utils, inputFields) {
     const prevPetsList = JSON.parse(localStorage.getItem("pets")) ?? [];
     data = {
       ...data,
+      files: extraFields.files,
+      images: extraFields.images,
       date: new Date(),
       id: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
-      folder: data.petType,
     };
     const newPetsList = [...prevPetsList, data];
     localStorage.setItem("pets", JSON.stringify(newPetsList));
@@ -802,32 +819,11 @@ export async function handleSubmit(data, exception, utils, inputFields) {
   ]);
 }
 
-// ! * --> Need to update the function to handle the edit functionality
-export function editPet(pet) {}
-
-export function showDetails(pet) {
-  console.log("clicked");
-  const modal = document.querySelector("#petModal");
-  modal.querySelector("[pet-img]").src = `assets/${
-    pet.type.toLowerCase() === "other" ? "logo" : pet.type
-  }.png`;
-  modal.querySelector("[pet-img]").alt = `${pet.type} avatar image`;
-  modal.querySelector("[pet-name]").innerText = pet.name;
-  modal.querySelector("[pet-type]").innerText = pet.type;
-  modal.querySelector("[pet-dob]").innerText = pet.dob;
-  modal.querySelector("[pet-medical]").innerText = pet.medicalHistory;
-  modal.querySelector("[pet-date-added]").innerText = pet.date;
-  modal.present();
-  modal.querySelector(".model-cancel").addEventListener("pointerdown", () => {
-    modal.dismiss();
-  });
-}
-
 /**
  * @param {string} type how to get an image from the device only capture or from gallery
  * @param {string} petId the id of the pet to save the image to
  */
-export async function getImage(type, petId) {
+export async function getImage(type, imgs) {
   if (type !== "camera" && type !== "gallery")
     return console.error(`Invalid type ${type}`);
 
@@ -847,20 +843,115 @@ export async function getImage(type, petId) {
   };
 
   const cameraSuccess = (ImageURI) => {
-    saveImage(petId, ImageURI);
-    // document.getElementById("imgCamera").src = ImageURI;
+    imgs.push(ImageURI);
+    return ImageURI;
   };
 
   const cameraError = (error) => {
     alert(`${type} Error`, null, error);
+    return null;
   };
 
   navigator.camera.getPicture(cameraSuccess, cameraError, options);
 }
 
+// ! * --> Need to update the function to handle the edit functionality
+export function editPet(pet) {}
+
+export function showDetails(pet) {
+  const modal = document.querySelector("#petModal");
+  const imgModal = document.querySelector("#view-imgs-model");
+  modal.querySelector("[pet-img]").src = `assets/${
+    pet.type.toLowerCase() === "other" ? "logo" : pet.type
+  }.png`;
+  modal.querySelector("[pet-img]").alt = `${pet.type} avatar image`;
+  modal.querySelector("[pet-name]").innerText = pet.name;
+  modal.querySelector("[pet-type]").innerHTML = `${pet.type} <ion-icon name="${
+    pet.type.toLowerCase() === "other"
+      ? "paw"
+      : pet.type.toLowerCase() === "fish"
+      ? "fish"
+      : pet.type.toLowerCase() === "bird"
+      ? "egg"
+      : pet.type.toLowerCase() === "cat"
+      ? "logo-octocat"
+      : "logo-android"
+  }"></ion-icon>`;
+  modal.querySelector("[pet-dob]").innerText = pet.dob;
+  modal.querySelector("[pet-medical]").innerText = pet.medicalHistory;
+  modal.querySelector("[pet-date-added]").innerText = `Date Added: ${
+    pet.date.split("T")[0]
+  } : ${pet.date.split("T")[1].split(".")[0]}
+  `;
+  modal.present();
+  modal.querySelector(".model-cancel").addEventListener("pointerdown", () => {
+    modal.dismiss();
+  });
+  const actionSheet = modal.querySelector("#addAnImageActions");
+  actionSheet.buttons = [
+    {
+      text: "Take a photo",
+      handler: async () => {
+        await getImage("camera", pet.images);
+        await saveAndSetPets();
+      },
+    },
+    {
+      text: "Choose from gallery",
+      handler: async () => {
+        await getImage("gallery", pet.images);
+        await saveAndSetPets();
+      },
+    },
+    {
+      text: "Cancel",
+      role: "cancel",
+      data: {
+        action: "cancel",
+      },
+    },
+  ];
+
+  async function saveAndSetPets() {
+    const petImages = [];
+    for (const image of pet.images) {
+      const URI = await saveImage(image, pet.id);
+      petImages.push(URI);
+    }
+
+    const newPetsList = JSON.parse(localStorage.getItem("pets")).map((p) => {
+      if (p.id === pet.id) {
+        return {
+          ...p,
+          images: petImages,
+        };
+      }
+      return p;
+    });
+
+    localStorage.setItem("pets", JSON.stringify(newPetsList));
+    setPets(utils);
+  }
+
+  modal.querySelector("#addAnImage").addEventListener("pointerdown", () => {
+    actionSheet.present();
+  });
+
+  modal.querySelector("#viewImg").addEventListener("pointerdown", () => {
+    imgModal.querySelector("[imgs-container]").innerHTML = "";
+    pet?.images.forEach((image) => {
+      const img = document.createElement("ion-img");
+      img.className = "pet-img";
+      img.src = image;
+      img.alt = `${pet.name} image`;
+      imgModal.querySelector("[imgs-container]").appendChild(img);
+      imgModal.querySelector("[img-modal-name]").innerText = pet.name;
+    });
+    imgModal.present();
+  });
+}
+
 async function saveImage(imageURI, petId) {
-  console.log("saving image");
-  alert("Save Image", null, "saving image");
   const fileName = `${petId}_${new Date().getTime()}.jpg`;
   let URL;
 
@@ -881,18 +972,11 @@ async function saveImage(imageURI, petId) {
     console.error(error);
     alert("Save Image", "error saving image", error.message);
   }
-  const pets = getPets("pets");
-  const pet = pets.find((pet) => pet.id === petId);
-  pet.images.push(URL);
-  newPets = pets.filter((pet) => pet.id !== petId);
-  newPets.push(pet);
-  localStorage.setItem("pets", JSON.stringify(newPets));
 }
 
 // ? * -->  Helper function to create a file
 function createFile(dirEntry, fileName) {
   console.log("creating file");
-  alert("Save Image", null, "creating file");
   return new Promise((resolve, reject) => {
     dirEntry.getFile(
       fileName,
@@ -905,7 +989,7 @@ function createFile(dirEntry, fileName) {
 
 // ? * -->  Helper function to write data to a file
 function writeFile(fileEntry, dataObj) {
-  alert("Save Image", null, "writing to file");
+  console.log("writing to file");
   return new Promise((resolve, reject) => {
     console.log("writing to file");
     fileEntry.createWriter((fileWriter) => {
@@ -927,5 +1011,45 @@ function writeFile(fileEntry, dataObj) {
 
       fileWriter.write(dataObj);
     });
+  });
+}
+
+/**
+ * Opens the file picker to select a pet certificate file and adds it to the pet's data.
+ *
+ * @param {string} petId - The ID of the pet to associate the certificate with.
+ * @returns {Promise<void>}
+ */
+export function addPetCertificate(petId) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      multiple: false,
+      mimeType: "application/pdf",
+    };
+
+    // Open the file picker
+    window.fileChooser.open(
+      options,
+      async (uri) => {
+        try {
+          // Read the selected file
+          const fileEntry = await resolveLocalFileSystemURL(uri);
+          const file = await getFile(fileEntry);
+
+          resolve();
+          return file;
+        } catch (error) {
+          reject(error);
+        }
+      },
+      reject
+    );
+  });
+}
+
+// * --> Helper function to get the file from a file entry
+function getFile(fileEntry) {
+  return new Promise((resolve, reject) => {
+    fileEntry.file(resolve, reject);
   });
 }
