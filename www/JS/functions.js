@@ -592,35 +592,26 @@ export function Notify(message, color, duration, position, id) {
   return toast;
 }
 
-// ! * --> Need to update the function to handle the edit functionality
-export function editPet(pet) {}
-
-export function showDetails(pet) {
-  console.log("clicked");
-  const modal = document.querySelector("#petModal");
-  modal.querySelector("[pet-img]").src = `assets/${
-    pet.type.toLowerCase() === "other" ? "logo" : pet.type
-  }.png`;
-  modal.querySelector("[pet-img]").alt = `${pet.type} avatar image`;
-  modal.querySelector("[pet-name]").innerText = pet.name;
-  modal.querySelector("[pet-type]").innerText = pet.type;
-  modal.querySelector("[pet-dob]").innerText = pet.dob;
-  modal.querySelector("[pet-medical]").innerText = pet.medicalHistory;
-  modal.querySelector("[pet-date-added]").innerText = pet.date;
-  modal.present();
-  modal.querySelector(".model-cancel").addEventListener("pointerdown", () => {
-    modal.dismiss();
-  });
-}
-
+/**
+ *
+ * @param {HTMLAllCollection} orderContainer  The container that holds the ordered items
+ * @returns {void} returns nothing but updates the order in local storage
+ */
 export function updateOrder(orderContainer) {
   // ? * --> get the current order
   const order = [...orderContainer].map((item) => item.id);
-  console.log(order[0]);
   // ? * --> store the new order in local storage
   localStorage.setItem("order", JSON.stringify(order));
 }
 
+/**
+ * This function generates a random pets within the specified range
+ * @param {number} petsNumber The number of pets to generate
+ * @returns {void} returns nothing but updates the pets in local storage
+ * @example
+ * generateFakePets(10)
+ * // returns an array of 10 pets
+ */
 export function generateFakePets(petsNumber) {
   const pets = [];
   //  * -->  Array of possible pet types
@@ -717,12 +708,25 @@ export function generateFakePets(petsNumber) {
   });
 }
 
+/**
+ * Handles the search input event and filters the list of pets based on the query.
+ *
+ * @param {InputEvent} event - The input event triggered by the search input.
+ * @returns {void}
+ */
 export function handleSearchInput(event) {
   const pets = document.querySelectorAll(".search-item-elements");
   const reorderContainer = document.querySelector("#reorderContainer");
   reorderContainer.disabled = true;
   const query = event.target.value.trim().toLowerCase();
-  if (query === "" || query === null) return handleClear(reorderContainer);
+
+  // * --> Clear the search results and enable reorder functionality if the query is empty
+  if (query === "" || query === null) {
+    handleClear(reorderContainer);
+    return;
+  }
+
+  // * --> Filter and hide pets that do not match the query
   requestAnimationFrame(() => {
     pets.forEach((pet) => {
       const setVisibility =
@@ -746,16 +750,33 @@ export function confirmModal(modal) {
   modal.dismiss(input.value, "confirm");
 }
 
+/**
+ * Handles the form submission for adding a new pet.
+ *
+ * @param {object} data - The form data containing the pet details.
+ * @param {string} exception - The key to exclude from the required field check.
+ * @param {object} utils - Utility Elements for manipulating the pets list.
+ * @param {object} inputFields - The input fields of the form.
+ * @returns {void}
+ */
 export async function handleSubmit(data, exception, utils, inputFields) {
   for (const [key, value] of Object.entries(data)) {
-    if (value === "" || value == null)
-      if (key === exception) continue;
-      else return alert("New Pet", "error", "Please fill in all fields");
-    if (value != null && key != "images") value.trim();
+    if (value === "" || value == null) {
+      if (key === exception) {
+        continue;
+      } else {
+        return alert("New Pet", "error", "Please fill in all fields");
+      }
+    }
+    if (value != null && key != "images") {
+      value.trim();
+    }
   }
-  const submitForm = () => {
+
+  const submit = () => {
     resetForm(inputFields);
     alert(null, "success", "Pet added successfully");
+
     const prevPetsList = JSON.parse(localStorage.getItem("pets")) ?? [];
     data = {
       ...data,
@@ -767,7 +788,8 @@ export async function handleSubmit(data, exception, utils, inputFields) {
     localStorage.setItem("pets", JSON.stringify(newPetsList));
     setPets(utils);
   };
-  alert("Save", null, "do you want to save pet!", [
+
+  alert("Save", null, "Do you want to save the pet?", [
     {
       text: "Cancel",
       role: "cancel",
@@ -775,9 +797,30 @@ export async function handleSubmit(data, exception, utils, inputFields) {
     {
       text: "Save",
       role: "confirm",
-      handler: () => submitForm(),
+      handler: () => submit(),
     },
   ]);
+}
+
+// ! * --> Need to update the function to handle the edit functionality
+export function editPet(pet) {}
+
+export function showDetails(pet) {
+  console.log("clicked");
+  const modal = document.querySelector("#petModal");
+  modal.querySelector("[pet-img]").src = `assets/${
+    pet.type.toLowerCase() === "other" ? "logo" : pet.type
+  }.png`;
+  modal.querySelector("[pet-img]").alt = `${pet.type} avatar image`;
+  modal.querySelector("[pet-name]").innerText = pet.name;
+  modal.querySelector("[pet-type]").innerText = pet.type;
+  modal.querySelector("[pet-dob]").innerText = pet.dob;
+  modal.querySelector("[pet-medical]").innerText = pet.medicalHistory;
+  modal.querySelector("[pet-date-added]").innerText = pet.date;
+  modal.present();
+  modal.querySelector(".model-cancel").addEventListener("pointerdown", () => {
+    modal.dismiss();
+  });
 }
 
 /**
