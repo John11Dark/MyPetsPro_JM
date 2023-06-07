@@ -1,4 +1,5 @@
-"use strict";
+"use strict"; // ! --> Enables strict mode which catches common coding mistakes and "unsafe" actions.
+
 /**
  * Takes item name to retrieves the pets from the local storage.
  * @param {string} name - The name of the local storage item to retrieve.
@@ -17,7 +18,7 @@ export function getPets(name) {
  * @param {HTMLElement} notify - The notification element to notify if there is no feeds.
  * @param {Array} pets - The array of pets to be displayed.
  */
-export async function setFeeds(list, notify, pets) {
+function setFeeds(list, notify, pets) {
   // ? * --> If there are no pets
 
   if (!pets || pets.length === 0) {
@@ -86,6 +87,233 @@ export async function setFeeds(list, notify, pets) {
 }
 
 /**
+ * Set the pets list and order based on the stored data.
+ * @param {Object} utils - An object containing utility elements for the function.
+ * @param {HTMLElement} utils.tab - The tab element for "Pets".
+ * @param {HTMLElement} utils.list - The list element for displaying pets.
+ * @param {HTMLElement} utils.feedList - The list element for displaying feeds.
+ * @param {HTMLElement} utils.orderContainer - The container element for displaying the order of pets.
+ * @param {HTMLElement} utils.notify - The notification label element.
+ * @returns {void}
+ */
+export async function setPets(utils) {
+  // ? * --> declare a counter to count the number of pets
+  let petsCounter = 0;
+
+  // ? * --> clear the feeds and pets inner HTML list
+  utils.orderContainer.innerHTML = "";
+  utils.feedList.innerHTML = "";
+
+  // ? * --> Get the pets from local storage
+  let pets = await getPets("pets");
+
+  // ? * --> check if there are pets
+  if (pets && pets.length > 0) {
+    // ? * --> Set the feeds list if it exists
+    utils.feedList && setFeeds(utils.feedList, utils.notify, pets);
+
+    // ? * -->  Check if there is an ordered list and retrieve it
+    const petsOrder = await getPets("order");
+    if (petsOrder && petsOrder.length > 0) {
+      const petsOrderSet = new Map();
+      pets.forEach((pet) => {
+        petsOrderSet.set(pet.id, petsOrder.indexOf(pet.id));
+      });
+      // console.log("pets order set");
+      // console.table(petsOrderSet);
+      // console.log("pets before");
+      // console.table(pets);
+
+      // * --> Sort the pets array based on the stored order
+      pets.sort((a, b) => {
+        const orderA = petsOrderSet.get(a.id);
+        const orderB = petsOrderSet.get(b.id);
+        return orderA - orderB;
+      });
+      // console.log("pets after");
+      // console.table(pets);
+    }
+
+    // ? * --> create a pet item for each pet
+    pets.forEach((pet) => {
+      // ? * --> create a pet item and set its attributes
+      const petItem = document.createElement("ion-item-sliding");
+      petItem.className = "pet-item | search-item-elements";
+      // ? * --> set the pet item name and type attributes for the search functionality
+      petItem.setAttribute("name", pet.name);
+      petItem.setAttribute("type", pet.type);
+      petItem.setAttribute("hide", false);
+      // ? * --> set the pet item id attribute for the order functionality
+      petItem.setAttribute("id", pet.id);
+
+      // ? * --> set the pet item inner HTML
+      petItem.innerHTML = `
+      <ion-item-options side="start">
+        <ion-item-option color="medium" class="edit-button" id="${pet.id}">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-item-option>
+        <ion-item-option color="primary" class="view-button" id="${pet.id}">
+        <ion-icon name="eye-outline"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+      <ion-item class="pet-item">
+        <div class="list-feed-card-container">
+          <span class="feed-card-added-date">${setDate(pet.date)}</span>
+          <ion-img class="feed-card-avatar" src="assets/${
+            pet.type.toLowerCase() === "other" ? "logo" : pet.type
+          }.png"
+            alt="${pet.type} avatar image"></ion-img>
+          <ion-title class="feed-card-name-label">${pet.name}</ion-title>
+        </div>
+        <ion-reorder slot="end"></ion-reorder>
+      </ion-item>
+      <ion-item-options slot="end">
+        <ion-item-option color="danger" class="delete-btn" id="${pet.id}">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+      `;
+      petsCounter++;
+      utils.orderContainer.appendChild(petItem);
+    });
+
+    // ? * --> Enable the "Pets List" tab
+    utils.tab.removeAttribute("disabled");
+    // ? * --> Set the pets list to visible
+    utils.list.setAttribute("visible", "true");
+
+    // ? * --> Enable the reorder functionality
+    if (petsCounter > 1 && utils.orderContainer)
+      utils.orderContainer.setAttribute("disabled", "false");
+  } else {
+    // ? * --> Disable the "Pets List" tab
+    utils.tab.setAttribute("disabled", "true");
+    // ? * --> Set the pets list to invisible
+    utils.list.setAttribute("visible", "false");
+    // ? * -->  Notify the user that there are no pets
+    utils.notify.setAttribute("visible", "true");
+    // ? * --> Hide the feeds list
+    utils.feedList.setAttribute("visible", "false");
+  }
+  utils.counterLabel.innerText = petsCounter;
+  // ? * --> set the pet card buttons
+  if (pets && pets.length > 0) setPetsButtons(pets, utils);
+}
+
+/**
+ * Set the buttons for each pet item.
+ * @returns {void}
+ */
+function setPetsButtons(pets, utils) {
+  const deleteButtons = document.querySelectorAll(".delete-btn");
+  const editButtons = document.querySelectorAll(".edit-button");
+  const viewButtons = document.querySelectorAll(".view-button");
+  deleteButtons.forEach((button) => {
+    button.addEventListener("pointerdown", () => {
+      alert("Confirm", "Delete", "do you want to delete pet!", [
+        {
+          text: "Delete",
+          role: "confirm",
+          handler: () => {
+            deletePet(pets, button.id, utils);
+          },
+        },
+        {
+          text: "Cancel",
+          role: "cancel",
+        },
+      ]);
+    });
+  });
+  editButtons.forEach((button) => {
+    button.addEventListener("pointerdown", () => {
+      const pet = pets.find((pet) => pet.id === button.id);
+      editPet(pet);
+    });
+  });
+  viewButtons.forEach((button) => {
+    button.addEventListener("pointerdown", () => {
+      const pet = pets.find((pet) => pet.id === button.id);
+      showDetails(pet);
+    });
+  });
+}
+
+/**
+ *  This function is responsible to delete a single pet from pets list.
+ * @param {Array} pets - The array of pets.
+ * @param {string} id - The ID of the pet to be deleted.
+ * @param {Object} utils - An object containing utility elements.
+ * @param {HTMLElement} utils.tab - The tab element for "Pets".
+ * @param {HTMLElement} utils.list - The list element for displaying pets.
+ * @param {HTMLElement} utils.notify - The notification label element.
+ * @param {HTMLElement} utils.order - The order element for displaying pets.
+ * @param {boolean} all - A boolean to indicate whether to delete all pets or single pet.
+ */
+export async function deletePet(pets, id, utils, all = false) {
+  if (all) {
+    // ? * -->  Disable the "Pets List" tab
+    utils.tab.disabled = true;
+    document.querySelector("ion-menu").close();
+    // ? * --> Activate the "Add" tab if The user was in the "Pets List" tab
+    if (utils.tab.active) {
+      const addTab = document.querySelector('[tab="add"]');
+      addTab.setAttribute("highlight", "true");
+      addTab.active = true;
+      utils.tab.setAttribute("highlight", "false");
+    }
+
+    // ? * --> Remove pets from local storage
+    localStorage.removeItem("pets");
+
+    // ? * --> Remove pets order from local storage
+    localStorage.removeItem("order");
+    setPets(utils);
+    return;
+  }
+  const order = await getPets("order");
+  const updatedOrder = order.filter((petId) => petId !== id);
+
+  // ? * --> Filter out the pet with the specified ID
+  const newPets = pets.filter((pet) => pet.id !== id);
+
+  const newOrder = order.filter((petId) => petId !== id);
+
+  // ? * --> Update the pets and pets order list in local storage
+  localStorage.setItem("order", JSON.stringify(newOrder));
+  localStorage.setItem("pets", JSON.stringify(newPets));
+
+  // ? * --> If there are no more pets
+  if (newPets.length === 0) {
+    // ? * -->  Disable the "Pets List" tab
+    utils.tab.disabled = true;
+    utils.tab.setAttribute("highlight", "false");
+
+    // ? * --> Activate the "Add" tab
+    const addTab = document.querySelector('[tab="add"]');
+    addTab.setAttribute("highlight", "true");
+    addTab.active = true;
+
+    // ? * --> Clear the pets list
+    utils.list.innerHTML = "";
+    utils.list.setAttribute("visible", "false");
+
+    // ? * --> Show the notification label
+    utils.notify.setAttribute("visible", "true");
+
+    // ? * --> Remove pets from local storage
+    localStorage.removeItem("pets");
+
+    // ? * --> Remove pets order from local storage
+    localStorage.removeItem("order");
+    return;
+  }
+
+  // ? * --> Update the UI
+  setPets(utils);
+}
+
+/**
  * Sets the past time representation for a given date attribute.
  * @param {string} dateAttribute - The date attribute to convert to a past time representation.
  * @returns {string} - The past time representation of the given date attribute.
@@ -114,59 +342,6 @@ export function setDate(dateAttribute) {
   } else {
     return `${seconds} second${seconds === 1 ? "" : "s"} ago`;
   }
-}
-
-/**
- *  This function is responsible to delete a single pet from pets list.
- *
- * @param {Array} pets - The array of pets.
- * @param {string} id - The ID of the pet to be deleted.
- * @param {Object} utils - An object containing utility elements.
- * @param {HTMLElement} utils.tab - The tab element for "Pets".
- * @param {HTMLElement} utils.list - The list element for displaying pets.
- * @param {HTMLElement} utils.notify - The notification label element.
- */
-export async function deletePet(pets, id, utils) {
-  const order = await getPets("order");
-  const updatedOrder = order.filter((petId) => petId !== id);
-
-  // ? * --> Filter out the pet with the specified ID
-  const newPets = pets.filter((pet) => pet.id !== id);
-
-  const newOrder = order.filter((petId) => petId !== id);
-
-  // ? * --> Update the pets and pets order list in local storage
-  localStorage.setItem("order", JSON.stringify(newOrder));
-  localStorage.setItem("pets", JSON.stringify(newPets));
-
-  // ? * --> If there are no more pets
-  if (newPets.length === 0) {
-    // ? * -->  Disable the "Pets List" tab
-    utils.tab.disabled = true;
-    utils.tab.setAttribute("highlight", "false");
-
-    // ? * --> Activate the "Add" tab
-    const addTab = document.querySelector('[tab="add"]');
-    addTab.setAttribute("highlight", "true");
-    addTab.active = true;
-
-    // ? * --> Clear the pets list
-    utils.list.innerHTML = "";
-    utils.list.setAttribute("petsList", "hidden");
-
-    // ? * --> Show the notification label
-    utils.notify.setAttribute("notifyLabel", "visible");
-
-    // ? * --> Remove pets from local storage
-    localStorage.removeItem("pets");
-
-    // ? * --> Remove pets order from local storage
-    localStorage.removeItem("order");
-    return;
-  }
-
-  // ? * --> Update the UI
-  setPets(utils);
 }
 
 /**
@@ -257,130 +432,6 @@ export function setTheme(
 }
 
 /**
- * Set the pets list and order based on the stored data.
- * @param {Object} utils - An object containing utility elements for the function.
- * @param {HTMLElement} utils.tab - The tab element for "Pets".
- * @param {HTMLElement} utils.list - The list element for displaying pets.
- * @param {HTMLElement} utils.feedList - The list element for displaying feeds.
- * @param {HTMLElement} utils.orderContainer - The container element for displaying the order of pets.
- * @param {HTMLElement} utils.notify - The notification label element.
- * @returns {void}
- */
-export async function setPets(utils) {
-  // ? * --> declare a counter to count the number of pets
-  let petsCounter = 0;
-  // ? * --> clear the pets inner HTML list
-  utils.orderContainer.innerHTML = "";
-  // ? * --> clear the feeds inner HTML list
-  utils.feedList.innerHTML = "";
-
-  // ? * --> Get the pets from local storage
-  let pets = await getPets("pets");
-
-  // ? * --> If there are pets
-
-  if (pets && pets.length > 0) {
-    // ? * --> Set the feeds list if it exists
-    if (utils.feedList) setFeeds(utils.feedList, utils.notify, pets);
-
-    // ? * -->  Check if there is an ordered list and retrieve it
-    const petsOrderSet = new Set(await getPets("order"));
-    if (petsOrderSet.size > 0) {
-      const orderedPets = pets.filter((pet) => petsOrderSet.has(pet.id));
-      pets = orderedPets;
-    }
-
-    // ? * --> Enable the "Pets List" tab
-    utils.tab.removeAttribute("disabled");
-    // ? * --> Set the pets list to visible
-    utils.list.setAttribute("petsList", "visible");
-    // ? * --> Hide the notification label
-    utils.notify?.setAttribute("notifyLabel", "hidden");
-    // ? * --> create a pet item for each pet
-    pets.forEach((pet) => {
-      // ? * --> create a pet item and set its attributes
-      const petItem = document.createElement("ion-item-sliding");
-      petItem.className = "pet-item | search-item-elements";
-      // ? * --> set the pet item name and type attributes for the search functionality
-      petItem.setAttribute("name", pet.name);
-      petItem.setAttribute("type", pet.type);
-      petItem.setAttribute("hide", false);
-      // ? * --> set the pet item id attribute for the order functionality
-      petItem.setAttribute("id", pet.id);
-
-      // ? * --> set the pet item inner HTML
-      petItem.innerHTML = `
-      <ion-item-options side="start">
-        <ion-item-option color="medium" class="edit-button" id="${pet.id}">
-          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-        </ion-item-option>
-        <ion-item-option color="primary" class="view-button" id="${pet.id}">
-        <ion-icon name="eye-outline"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-      <ion-item class="pet-item">
-        <div class="list-feed-card-container">
-          <span class="feed-card-added-date">${setDate(pet.date)}</span>
-          <ion-img class="feed-card-avatar" src="assets/${
-            pet.type.toLowerCase() === "other" ? "logo" : pet.type
-          }.png"
-            alt="${pet.type} avatar image"></ion-img>
-          <ion-title class="feed-card-name-label">${pet.name}</ion-title>
-        </div>
-        <ion-reorder slot="end"></ion-reorder>
-      </ion-item>
-      <ion-item-options slot="end">
-        <ion-item-option color="danger" class="delete-btn" id="${pet.id}">
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
-        </ion-item-option>
-      </ion-item-options>
-      `;
-      petsCounter++;
-      utils.orderContainer.appendChild(petItem);
-    });
-    // ? * --> Enable the reorder functionality
-    if (petsCounter > 1 && utils.orderContainer)
-      utils.orderContainer.setAttribute("disabled", "false");
-  } else {
-    utils.list.setAttribute("petsList", "hidden");
-    utils.notify.setAttribute("notifyLabel", "visible");
-  }
-  utils.counterLabel.innerText = petsCounter;
-  if (pets && pets.length > 0) {
-    const deleteButtons = document.querySelectorAll(".delete-btn");
-    const editButtons = document.querySelectorAll(".edit-button");
-    const viewButtons = document.querySelectorAll(".view-button");
-    deleteButtons.forEach((button) => {
-      button.addEventListener("pointerdown", () => {
-        presentAlert("Confirm", "Delete", "do you want to delete pet!", [
-          {
-            text: "Delete",
-            role: "confirm",
-            handler: () => deletePet(pets, btn.id, utils),
-          },
-          {
-            text: "Cancel",
-            role: "cancel",
-          },
-        ]);
-      });
-    });
-    editButtons.forEach((button) => {
-      button.addEventListener("pointerdown", () => {
-        const pet = pets.find((pet) => pet.id === button.id);
-        editPet(pet);
-      });
-    });
-    viewButtons.forEach((button) => {
-      button.addEventListener("pointerdown", () => {
-        const pet = pets.find((pet) => pet.id === button.id);
-        showDetails(pet);
-      });
-    });
-  }
-}
-
-/**
  * Sets the user preference based on the provided toggles list.
  * Retrieves the user preference from local storage or sets default values.
  * Updates the user preference and toggles the corresponding elements.
@@ -464,7 +515,7 @@ export function updateUserPreference(key, value) {
  * @param {object[]} [inputs=[]] - An array of input options for the alert. Each input option should be an object with properties like `type`, `name`, `placeholder`, etc. Optional but null must be passed in to skip this parameter.
  * @returns {Promise<void>} A promise that resolves when the alert is dismissed.
  */
-export async function presentAlert(
+export async function alert(
   header = "Alert",
   subheader = "",
   message,
@@ -500,6 +551,47 @@ export function resetForm(inputFields) {
   dateLabel.textContent = "Date of birth";
 }
 
+/**
+ * This function responsible for detecting when the device is offline
+ * @returns {void} returns nothing but  displays an alert when the device is offline and
+ * sets an event listener for when the device is back online
+ */
+export function onOffline() {
+  Notify("You are offline", "danger", null, "bottom", "#offline");
+  document.addEventListener("online", onOnline, false);
+}
+
+/**
+ * This function responsible for detecting when the device is back online
+ * @returns {void} returns nothing but  displays an alert when the device is back online and
+ * removes the event listener for when the device is back online and sets the offline alert to null
+ */
+function onOnline() {
+  document.removeEventListener("online", onOnline, false);
+  document.getElementById("#offline")?.remove();
+  Notify("Back online", "success", 2000, "bottom", null);
+}
+
+/**
+ * This function shows a notify alert that can disappear after a certain duration
+ * @param {string} message To display in the alert
+ * @param {string} color background color of the alert
+ * @param {number} duration duration of the alert
+ * @param {string} position position of the alert
+ * @returns {void} returns nothing, just displays the alert
+ */
+export function Notify(message, color, duration, position, id) {
+  const toast = document.createElement("ion-toast");
+  if (id) toast.id = id;
+  toast.message = message;
+  if (duration) toast.duration = duration;
+  toast.color = color;
+  toast.position = position;
+  document.body.appendChild(toast);
+  toast.present();
+  return toast;
+}
+
 // ! * --> Need to update the function to handle the edit functionality
 export function editPet(pet) {}
 
@@ -520,20 +612,21 @@ export function showDetails(pet) {
     modal.dismiss();
   });
 }
-export function updateOrder(orderContainer, pets) {
-  pets = pets || [];
+
+export function updateOrder(orderContainer) {
   // ? * --> get the current order
-  const order = [...orderContainer.children].map((item) => item.id);
+  const order = [...orderContainer].map((item) => item.id);
+  console.log(order[0]);
   // ? * --> store the new order in local storage
-  localStorage.setItem("order", JSON.stringify([...order, ...pets]));
+  localStorage.setItem("order", JSON.stringify(order));
 }
 
 export function generateFakePets(petsNumber) {
   const pets = [];
-  // Array of possible pet types
+  //  * -->  Array of possible pet types
   const petTypes = ["dog", "cat", "bird", "fish", "other"];
 
-  // Generate a random pet name
+  //  * -->  Generate a random pet name
   function generatePetName() {
     const names = [
       "Max",
@@ -571,23 +664,26 @@ export function generateFakePets(petsNumber) {
     return names[Math.floor(Math.random() * names.length)];
   }
 
-  // Generate a random medical history
+  //  * -->  Generate a random medical history
   function generateMedicalHistory(name) {
     const actions = [
       "was born",
       "had a check-up",
       "received vaccinations",
       "visited the vet",
+      "had a grooming session",
     ];
     const date = new Date().toISOString().split("T")[0];
     const action = actions[Math.floor(Math.random() * actions.length)];
-    return `1. ${date}: ${name} ${action}`;
+    return ` ${name} : ${action} on ${date}`;
   }
 
   for (let i = 0; i < petsNumber; i++) {
     const type = petTypes[Math.floor(Math.random() * petTypes.length)];
     const name = generatePetName();
-    const dob = "2021-05-05";
+    const dob = new Date(Date.now() - Math.floor(Math.random() * 10000))
+      .toISOString()
+      .split("T")[0];
     const medicalHistory =
       type === "other" ? undefined : generateMedicalHistory(name);
 
@@ -654,10 +750,24 @@ export async function handleSubmit(data, exception, utils, inputFields) {
   for (const [key, value] of Object.entries(data)) {
     if (value === "" || value == null)
       if (key === exception) continue;
-      else return presentAlert("New Pet", "error", "Please fill in all fields");
+      else return alert("New Pet", "error", "Please fill in all fields");
     if (value != null && key != "images") value.trim();
   }
-  presentAlert("Save", null, "do you want to save pet!", [
+  const submitForm = () => {
+    resetForm(inputFields);
+    alert(null, "success", "Pet added successfully");
+    const prevPetsList = JSON.parse(localStorage.getItem("pets")) ?? [];
+    data = {
+      ...data,
+      date: new Date(),
+      id: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
+      folder: data.petType,
+    };
+    const newPetsList = [...prevPetsList, data];
+    localStorage.setItem("pets", JSON.stringify(newPetsList));
+    setPets(utils);
+  };
+  alert("Save", null, "do you want to save pet!", [
     {
       text: "Cancel",
       role: "cancel",
@@ -665,54 +775,16 @@ export async function handleSubmit(data, exception, utils, inputFields) {
     {
       text: "Save",
       role: "confirm",
-      handler: () => {
-        resetForm(inputFields);
-        presentAlert(null, "success", "Pet added successfully");
-        const prevPetsList = JSON.parse(localStorage.getItem("pets")) ?? [];
-        data = {
-          ...data,
-          date: new Date(),
-          id: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
-          folder: data.petType,
-        };
-        const newPetsList = [...prevPetsList, data];
-        localStorage.setItem("pets", JSON.stringify(newPetsList));
-        getPets("pets");
-        setPets(utils);
-      },
+      handler: () => submitForm(),
     },
   ]);
 }
 
 /**
- * This function shows a notify alert that can disappear after a certain duration
- * @param {string} message To display in the alert
- * @param {string} color background color of the alert
- * @param {number} duration duration of the alert
- * @param {string} position position of the alert
- * @returns {void} returns nothing, just displays the alert
- */
-export function Notify(message, color, duration, position, id) {
-  const toast = document.createElement("ion-toast");
-  if (id) toast.id = id;
-  toast.message = message;
-  if (duration) toast.duration = duration;
-  toast.color = color;
-  toast.position = position;
-  document.body.appendChild(toast);
-  toast.present();
-  return toast;
-}
-
-/**
- *
  * @param {string} type how to get an image from the device only capture or from gallery
- * @returns {string} returns the path of the image
+ * @param {string} petId the id of the pet to save the image to
  */
 export async function getImage(type, petId) {
-  // event.preventDefault();
-  // event.stopPropagation();
-
   if (type !== "camera" && type !== "gallery")
     return console.error(`Invalid type ${type}`);
 
@@ -732,20 +804,20 @@ export async function getImage(type, petId) {
   };
 
   const cameraSuccess = (ImageURI) => {
-    console.log(ImageURI);
     saveImage(petId, ImageURI);
+    // document.getElementById("imgCamera").src = ImageURI;
   };
 
   const cameraError = (error) => {
-    // console.error(error);
-    presentAlert(`${type} Error`, null, error);
+    alert(`${type} Error`, null, error);
   };
 
-  return navigator.camera.getPicture(cameraSuccess, cameraError, options);
+  navigator.camera.getPicture(cameraSuccess, cameraError, options);
 }
 
 async function saveImage(imageURI, petId) {
   console.log("saving image");
+  alert("Save Image", null, "saving image");
   const fileName = `${petId}_${new Date().getTime()}.jpg`;
   let URL;
 
@@ -764,15 +836,20 @@ async function saveImage(imageURI, petId) {
     });
   } catch (error) {
     console.error(error);
-    presentAlert("Save Image", "error saving image", error.message);
+    alert("Save Image", "error saving image", error.message);
   }
-  console.log(URL);
-  return URL;
+  const pets = getPets("pets");
+  const pet = pets.find((pet) => pet.id === petId);
+  pet.images.push(URL);
+  newPets = pets.filter((pet) => pet.id !== petId);
+  newPets.push(pet);
+  localStorage.setItem("pets", JSON.stringify(newPets));
 }
 
-// Helper function to create a file
+// ? * -->  Helper function to create a file
 function createFile(dirEntry, fileName) {
   console.log("creating file");
+  alert("Save Image", null, "creating file");
   return new Promise((resolve, reject) => {
     dirEntry.getFile(
       fileName,
@@ -783,8 +860,9 @@ function createFile(dirEntry, fileName) {
   });
 }
 
-// Helper function to write data to a file
+// ? * -->  Helper function to write data to a file
 function writeFile(fileEntry, dataObj) {
+  alert("Save Image", null, "writing to file");
   return new Promise((resolve, reject) => {
     console.log("writing to file");
     fileEntry.createWriter((fileWriter) => {
@@ -807,15 +885,4 @@ function writeFile(fileEntry, dataObj) {
       fileWriter.write(dataObj);
     });
   });
-}
-
-export function onOffline() {
-  Notify("You are offline", "danger", null, "bottom", "#offline");
-  document.addEventListener("online", onOnline, false);
-}
-
-function onOnline() {
-  document.removeEventListener("online", onOnline, false);
-  document.getElementById("#offline")?.remove();
-  Notify("Back online", "success", 2000, "bottom", null);
 }

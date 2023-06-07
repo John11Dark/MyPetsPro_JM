@@ -215,9 +215,9 @@
                     </ion-header>
 
                     <ion-content class="content" id="main-content">
-                        <div class="content-container">
+                        <div class="content-container" id="petsContentContainer">
                             <ion-searchbar class="search-bar" autocomplete="on" placeholder="Search"></ion-searchbar>
-                            <ion-list petsList="hidden" class="pet-list">
+                            <ion-list petsList visible="false" class="pet-list">
                                 <ion-reorder-group id="reorderContainer" class="pet-list">
 
                                 </ion-reorder-group>
@@ -276,7 +276,8 @@
                                     <span>upload an image</span>
                                 </ion-button>
 
-                                <ion-action-sheet header="Add an image" id="uploadAnImageActions"></ion-action-sheet>
+                                <ion-action-sheet mode="ios" header="Add an image"
+                                    id="uploadAnImageActions"></ion-action-sheet>
                                 <div class="action-btns">
                                     <ion-button type="reset" class="form-Btn | clear-btn | secondary-btn"
                                         id="btn-clear-form">
@@ -290,9 +291,9 @@
                                     </ion-button>
                                 </div>
 
-                                <ion-img class="add-pet-img" src="assets/add-new-pet.png" alt="pets illustration image">
+                                <ion-img id="imgCamera" class="add-pet-img" src="assets/add-new-pet.png"
+                                    alt="pets illustration image">
                             </form>
-
                         </div>
                     </ion-content>
 

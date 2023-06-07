@@ -290,11 +290,12 @@ body {
 }
 
 .menu-inner-container {
-  min-width: 300px;
   display: grid;
-  justify-content: start;
+  place-content: flex-start;
+  place-items: flex-start;
+  place-self: flex-start;
   gap: var(--spacing-300);
-  margin: var(--spacing-300) auto;
+  margin: var(--spacing-400) 0;
 }
 
 .ion-menu-title {
@@ -302,10 +303,13 @@ body {
   font-weight: 900;
   color: var(--primary-color);
   display: flex;
-  place-content: center;
-  place-items: center;
-  place-self: center;
-  gap: 0 var(--spacing-100);
+  align-items: center;
+  align-content: center;
+  margin-left: var(--spacing-100);
+  width: 100%;
+  text-align: left;
+  gap: var(--spacing-200);
+  text-transform: capitalize;
 }
 
 ion-toggle {
@@ -316,16 +320,13 @@ ion-toggle {
 .menu-button-item {
   background-color: var(--surface-grayish);
   color: var(--paragraph-color);
-
-  width: 80%;
+  width: 100%;
   height: 50px;
-  margin-left: 2em;
   padding: var(--spacing-200);
   border-radius: var(--radius-100);
   display: flex;
-  place-content: start;
-  place-items: center;
-  place-self: center;
+  align-items: center;
+  align-content: center;
   gap: var(--spacing-200);
   text-transform: capitalize;
 }
@@ -365,8 +366,6 @@ ion-toggle {
 .ion-item {
   background-color: transparent !important;
   --background: transparent !important;
-  max-width: 400px;
-  min-width: 300px;
   min-height: 300px;
   padding: 0 !important;
   margin: 0 !important;
@@ -378,9 +377,8 @@ ion-toggle {
   border-radius: var(--radius-100);
   background: var(--surface-grayish);
   box-shadow: 0 0 0.5em var(--theme-shadow);
-  width: 100%;
-  min-width: 400px;
-  min-height: 300px;
+  width: 400px;
+  max-width: 400px;
   transition: all 0.3s ease;
 }
 
@@ -451,7 +449,9 @@ ion-toggle {
 }
 .search-bar {
   box-shadow: none;
-  max-width: 90dvw;
+  max-width: 95dvw;
+  --background: var(--surface-grayish) !important;
+  --color: var(--paragraph-color) !important;
 }
 .pet-list {
   background-color: transparent;
@@ -463,11 +463,13 @@ ion-toggle {
   place-self: center;
   gap: 1em;
 }
+.pet-list[visible="false"] {
+  display: none;
+}
+
 .pet-item {
   --background: var(--surface-grayish);
   border-radius: var(--radius-200);
-  max-width: 400px;
-  min-width: 300px;
 }
 .pet-item[hide="true"] {
   display: none;

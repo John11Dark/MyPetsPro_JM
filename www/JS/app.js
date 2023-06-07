@@ -4,7 +4,7 @@ import {
   handleSubmit,
   handleSearchInput,
   setPets,
-  presentAlert,
+  alert,
   resetForm,
   generateFakePets,
   setUserPreference,
@@ -13,43 +13,57 @@ import {
   updateOrder,
   onOffline,
   getImage,
+  deletePet,
 } from "./functions.js";
 
 // ? * --> DOM Elements
+
+//  * --> Add pet Form
 const addButton = document.querySelector("#btn-add-pet");
 const clearButton = document.querySelector("#btn-clear-form");
 const petName = document.querySelector("#pet-name");
 const petType = document.querySelector("#pet-type");
 const petDateOfBirth = document.querySelector("#pet-date-of-birth");
-const petsList = document.querySelector("[petsList]");
-const notify = document.querySelector("[notify]");
 const petsCounterLabel = document.querySelector("[petsCounter]");
+const petMedicalHistory = document.querySelector("#pet-med-history");
+const petMedHisReadMore = document.querySelector("[medicalHistoryLabel]");
+const confirmDate = document.querySelector("#confirmDateBtn");
+const uploadAnImageActions = document.querySelector("#uploadAnImageActions");
+const uploadAnImage = document.querySelector("#uploadAnImage");
+
+//  * --> Pets List Page
+const orderContainer = document.querySelector("#reorderContainer");
+const searchbar = document.querySelector("ion-searchbar");
+const petsList = document.querySelector("[petsList]");
+const petsListTab = document.querySelector("#petsListTab");
+
+// * --> Feeds Page
+const feedList = document.querySelector("[feedList]");
+const notify = document.querySelector("[notify]");
+
+// * --> About Page
+const platformLabel = document.querySelector("[platform]");
+
+// * --> Main elements
+const modals = document.querySelectorAll("ion-modal");
 const tabs = document.querySelectorAll(".navigation-tabs");
 const modelCancelBtns = document.querySelectorAll(".model-cancel");
-const modals = document.querySelectorAll("ion-modal");
-const confirmDate = document.querySelector("#confirmDateBtn");
-const petMedicalHistory = document.querySelector("#pet-med-history");
-const petsListTab = document.querySelector("#petsListTab");
-const petImages = [];
-const petMedHisReadMore = document.querySelector("[medicalHistoryLabel]");
-const platformLabel = document.querySelector("[platform]");
-const searchbar = document.querySelector("ion-searchbar");
-const feedList = document.querySelector("[feedList]");
-// ? * --> Menu Buttons
-// ? * --> Switches (toggles)
+
+//  ** --> Menu Buttons
+
+//  *** --> Switches (toggles)
 const themeToggle = document.querySelector("[theme-toggle]");
 const alertToggle = document.querySelector("[alert-toggle]");
 const notificationsToggle = document.querySelector("[notifications-toggle]");
 const soundToggle = document.querySelector("[sound-toggle]");
 
+// *** --> Buttons
 const deletePets = document.querySelector("[delete-btn]");
 const generatePets = document.querySelector("[generate-btn]");
-const orderContainer = document.querySelector("#reorderContainer");
-const imgBtn = document.querySelector("#imgBtn");
-const uploadAnImageActions = document.querySelector("#uploadAnImageActions");
-const uploadAnImage = document.querySelector("#uploadAnImage");
+
 // ? * --> Variables
 
+//  * --> Utilities Elements
 const utils = {
   tab: petsListTab,
   list: petsList,
@@ -59,6 +73,7 @@ const utils = {
   orderContainer,
 };
 
+//  * --> Preferences toggles
 const preferenceToggles = {
   theme: themeToggle,
   notifications: notificationsToggle,
@@ -66,6 +81,11 @@ const preferenceToggles = {
   sound: soundToggle,
 };
 
+// ! --> Temporary variables
+const petImages = [];
+const petFiles = [];
+
+//  * --> App Main Object
 const app = {
   tempURL: null,
   permanentFolder: null,
@@ -74,13 +94,11 @@ const app = {
   files: [],
   lunchTime: 0,
   initialize: function () {
-    setTimeout(() => {
-      app.setupDocument();
-      app.addEventListeners();
-      console.log("App Initialized");
-    }, app.lunchTime);
+    app.setupDocument();
+    app.addEventListeners();
+    console.log("App Initialized");
   },
-  addEventListeners: function onDeviceReady() {
+  addEventListeners: function () {
     // ? * --> Event Listeners
 
     // ? * --> pointerdown event is used instead of click event
@@ -107,34 +125,24 @@ const app = {
         petDateOfBirth.value ||
         petMedicalHistory.value
       )
-        presentAlert(
-          "Clear Form",
-          "Are you sure you want to clear the form?",
-          null,
-          [
-            {
-              text: "Cancel",
-              role: "cancel",
+        alert("Clear Form", "Are you sure you want to clear the form?", null, [
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+          {
+            text: "Clear",
+            handler: () => {
+              resetForm([petName, petType, petDateOfBirth, petMedicalHistory]);
             },
-            {
-              text: "Clear",
-              handler: () => {
-                resetForm([
-                  petName,
-                  petType,
-                  petDateOfBirth,
-                  petMedicalHistory,
-                ]);
-              },
-            },
-          ]
-        );
+          },
+        ]);
     });
 
     deletePets?.addEventListener("pointerdown", async () => {
       let pets = await getPets("pets");
       pets.length > 0 &&
-        presentAlert(
+        alert(
           "Delete All Pets",
           "Are you sure you want to delete all pets?",
           null,
@@ -145,18 +153,14 @@ const app = {
             },
             {
               text: "Delete",
-              handler: () => {
-                localStorage.removeItem("pets");
-                localStorage.removeItem("order");
-                setPets(utils);
-              },
+              handler: () => deletePet(null, null, utils, true),
             },
           ]
         );
     });
 
     generatePets?.addEventListener("pointerdown", () => {
-      presentAlert(
+      alert(
         "Generate Fake Pets",
         "enter number of pets to be generated!",
         null,
@@ -189,7 +193,7 @@ const app = {
 
     confirmDate?.addEventListener("pointerdown", () => {
       if (!petDateOfBirth.value)
-        return presentAlert("Error", null, "Please select a date", [
+        return alert("Error", null, "Please select a date", [
           {
             text: "Ok",
             role: "cancel",
@@ -240,11 +244,15 @@ const app = {
     orderContainer.addEventListener("ionItemReorder", (event) => {
       // ? * --> Save the new order
       event.detail.complete();
-      updateOrder(orderContainer);
+      updateOrder(orderContainer.children);
     });
-    imgBtn?.addEventListener("pointerdown", async () => {
-      const img = await getImage("gallery");
-    });
+
+    for (const object in preferenceToggles) {
+      const toggle = preferenceToggles[object];
+      toggle.addEventListener("pointerdown", () => {
+        updateUserPreference(toggle.getAttribute("key"), !toggle.checked);
+      });
+    }
 
     // ? * --> Network Events
     document.addEventListener("offline", onOffline, false);
@@ -264,13 +272,13 @@ const app = {
       {
         text: "Take a photo",
         handler: () => {
-          getImage("camera", petImages);
+          getImage("camera");
         },
       },
       {
         text: "Choose from gallery",
         handler: () => {
-          getImage("gallery", petImages);
+          getImage("gallery");
         },
       },
       {
@@ -301,7 +309,7 @@ const app = {
           app.permanentFolder = dirEntry;
         },
         (err) => {
-          presentAlert("loading files Error", null, err);
+          alert("loading files Error", null, err);
         }
       );
     });
@@ -318,7 +326,7 @@ const app = {
         app.images = dirEntry;
       },
       (err) => {
-        presentAlert("loading images Error", null, err);
+        alert("loading images Error", null, err);
       }
     );
 
@@ -332,12 +340,11 @@ const app = {
         app.files = dirEntry;
       },
       (err) => {
-        presentAlert("loading files Error", null, err);
+        alert("loading files Error", null, err);
       }
     );
   },
 };
 
-// ? * --> Doc Setup
-
+// ? * --> Initialize App on Device Ready
 document.addEventListener("deviceready", app.initialize, false);
